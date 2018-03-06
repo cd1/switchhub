@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name" translatable="false">Switch Hub</string>
+
+    <!-- Menu -->
+    <string name="refresh">Refresh</string>
+
+    <!-- LoadingGamesFragment -->
+    <string name="loading_games">Loading games…</string>
+    <string name="loading_games_failed_message">There was a problem loading the games.</string>
+    <string name="loading_games_failed_suggestion">Make sure your device is connected to the Internet.</string>
+    <string name="try_again">Try again</string>
+
+    <!-- GamesFragment -->
+    <string name="no_games_found">No games found.</string>
+    <string name="front_box_art_description">Game front box art</string>
+    <string name="price_unavailable">Price unavailable</string>
+</resources>

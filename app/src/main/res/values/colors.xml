@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="nintendoSwitchRed">#E60012</color>
+
+    <color name="joyconNeonRed">#FF4554</color>
+    <color name="joyconNeonBlue">#00C3E3</color>
+
+    <color name="joyconNeonPink">#EE2A70</color>
+    <color name="joyconNeonGreen">#39E03F</color>
+
+    <color name="joyconNeonYellow">#D5EE50</color>
+
+    <color name="joyconRed">#E9112A</color>
+</resources>

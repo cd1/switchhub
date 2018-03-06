@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="loading_games_text_margin">8dp</dimen>
+    <dimen name="loading_games_failed_text_margin">16dp</dimen>
+
+    <dimen name="game_list_padding">3dp</dimen>
+    <dimen name="game_card_corner_radius">2dp</dimen>
+    <dimen name="game_title_text_size">14sp</dimen>
+    <dimen name="game_price_text_size">12sp</dimen>
+    <dimen name="game_price_top_padding">1dp</dimen>
+    <dimen name="game_text_padding">6dp</dimen>
+</resources>
