@@ -1,5 +1,6 @@
 package com.gmail.cristiandeives.switchhub.http
 
+import android.net.Uri
 import android.util.Log
 import com.gmail.cristiandeives.switchhub.Game
 import java.text.DateFormat
@@ -19,8 +20,13 @@ internal data class ResponseGames(val offset: Int, val limit: Int, private val g
                 Log.e(TAG, "invalid release date format", e)
                 null
             },
+            releaseDateDisplay = g.release_date_display,
             price = g.eshop_price?.toBigDecimal(),
-            frontBoxArtUrl = g.front_box_art
+            frontBoxArtUrl = Uri.parse(g.front_box_art),
+            videoLink = g.video_link?.let { Uri.parse("https://secure-cf-c.ooyala.com/$it/DOcJ-FxaFrRg4gtDEwOmk2OjBrO6qGv_") },
+            numberOfPlayers = g.number_of_players,
+            categories = g.categories.category,
+            buyItNow = g.buyitnow.toBoolean()
         )
     } ?: emptyList()
 
@@ -92,5 +98,8 @@ internal data class GamesGame(
     val video_link: String?,
     val eshop_price: Double?,
     val ca_price: String?,
-    val nsuid: String?
+    val nsuid: String?,
+    val categories: GameCategories
 )
+
+data class GameCategories(val category: List<String>)

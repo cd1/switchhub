@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="game_details_title_bottom_margin">18dp</dimen>
+    <dimen name="game_details_between_lines">12dp</dimen>
+</resources>

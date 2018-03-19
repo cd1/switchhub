@@ -8,15 +8,6 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 
-/*
-TODO
-====
-
-- Deal with errors when loading games
-- Deal with a successful and empty response when loading games
-- Do not show the snackbar when changing configuration after an error
-
- */
 @MainThread
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

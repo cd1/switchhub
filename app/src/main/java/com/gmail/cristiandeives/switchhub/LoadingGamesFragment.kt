@@ -12,7 +12,7 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_loading_games.*
 
 @MainThread
-class LoadingGamesFragment : Fragment(), View.OnClickListener {
+internal class LoadingGamesFragment : Fragment(), View.OnClickListener {
     private lateinit var viewModel: MainViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

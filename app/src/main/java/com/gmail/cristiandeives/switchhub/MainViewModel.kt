@@ -4,8 +4,10 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.support.annotation.MainThread
 import android.util.Log
+import com.gmail.cristiandeives.switchhub.http.GameCategoriesAdapter
 import com.gmail.cristiandeives.switchhub.http.GameResponse
 import com.gmail.cristiandeives.switchhub.http.NintendoEshopService
+import com.squareup.moshi.Moshi
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -22,7 +24,7 @@ internal class MainViewModel : ViewModel() {
 
     private val service = Retrofit.Builder()
         .baseUrl("https://www.nintendo.com")
-        .addConverterFactory(MoshiConverterFactory.create())
+        .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder().add(GameCategoriesAdapter()).build()))
         .build()
         .create(NintendoEshopService::class.java)
 
