@@ -2,6 +2,12 @@
     <string name="app_name" translatable="false">Switch Hub</string>
 
     <!-- Menu -->
+    <string name="sort">Sort</string>
+    <string name="sort_by_featured">Featured</string>
+    <string name="sort_by_title">By title</string>
+    <string name="sort_by_release_date">By release date</string>
+    <string name="sort_by_lowest_price">By price ($)</string>
+    <string name="sort_by_highest_price">By price ($$$)</string>
     <string name="refresh">Refresh</string>
 
     <!-- LoadingGamesFragment -->

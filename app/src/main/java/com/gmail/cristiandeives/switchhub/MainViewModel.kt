@@ -1,7 +1,9 @@
 package com.gmail.cristiandeives.switchhub
 
+import android.app.Application
+import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.ViewModel
+import android.content.Context
 import android.support.annotation.MainThread
 import android.util.Log
 import com.gmail.cristiandeives.switchhub.http.GameCategoriesAdapter
@@ -15,12 +17,30 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 @MainThread
-internal class MainViewModel : ViewModel() {
+internal class MainViewModel(app: Application) : AndroidViewModel(app) {
+    private val sharedPrefs = getApplication<Application>().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+
     val loadingState = MutableLiveData<LoadingState>().apply { value = LoadingState.NOT_LOADED }
     val pageSize = 30
     var games: List<Game>? = null
     var page = 0
         private set
+    var sortCriteria: SortCriteria
+        get() = sharedPrefs.getInt(PREF_KEY_SORT, -1).let { sortPrefValue ->
+            SortCriteria.values().find { it.ordinal == sortPrefValue } ?: SortCriteria.FEATURED
+        }
+
+        set(value) {
+            if (value === sortCriteria) {
+                Log.d(TAG, "user selected same sort criteria as current value [$value]; ignoring change")
+                return
+            }
+
+            sharedPrefs.edit()
+                .putInt(PREF_KEY_SORT, value.ordinal)
+                .apply()
+            loadInitialGames()
+        }
 
     private val service = Retrofit.Builder()
         .baseUrl("https://www.nintendo.com")
@@ -39,7 +59,12 @@ internal class MainViewModel : ViewModel() {
             loadingState.value = LoadingState.LOADING
 
             Log.d(TAG, "loading game page #$nextPage; offset = $startFrom, limit = $pageSize")
-            service.getGames(offset = startFrom, limit = pageSize).enqueue(GetGamesCallback(nextPage))
+            service.getGames(
+                offset = startFrom,
+                limit = pageSize,
+                sort = sortCriteria.sortBy,
+                sortDirection = sortCriteria.sortDirection
+            ).enqueue(GetGamesCallback(nextPage))
         } else {
             Log.d(TAG, "some game page is already loading; don't try to load something else")
         }
@@ -82,6 +107,8 @@ internal class MainViewModel : ViewModel() {
     }
 
     companion object {
+        private const val PREF_NAME = "main_preferences"
+        private const val PREF_KEY_SORT = "sort"
         private val TAG = MainViewModel::class.java.simpleName
     }
 }

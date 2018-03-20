@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Menu -->
+    <string name="sort">Ordenar</string>
+    <string name="sort_by_featured">Em destaque</string>
+    <string name="sort_by_title">Por título</string>
+    <string name="sort_by_release_date">Por data de lançamento</string>
+    <string name="sort_by_lowest_price">Por preço ($)</string>
+    <string name="sort_by_highest_price">Por preço ($$$)</string>
     <string name="refresh">Atualizar</string>
 
     <!-- LoadingGamesFragment -->

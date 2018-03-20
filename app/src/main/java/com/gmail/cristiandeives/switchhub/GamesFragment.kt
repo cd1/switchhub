@@ -133,6 +133,22 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         var itemConsumed = true
 
         when (item.itemId) {
+            R.id.sort -> {
+                val subMenuId = when (viewModel.sortCriteria) {
+                    SortCriteria.FEATURED -> R.id.sort_by_featured
+                    SortCriteria.TITLE -> R.id.sort_by_title
+                    SortCriteria.RELEASE_DATE -> R.id.sort_by_release_date
+                    SortCriteria.LOWEST_PRICE -> R.id.sort_by_lowest_price
+                    SortCriteria.HIGHEST_PRICE -> R.id.sort_by_highest_price
+                }
+
+                item.subMenu.findItem(subMenuId).isChecked = true
+            }
+            R.id.sort_by_featured -> changeSortCriteria(SortCriteria.FEATURED)
+            R.id.sort_by_title -> changeSortCriteria(SortCriteria.TITLE)
+            R.id.sort_by_release_date -> changeSortCriteria(SortCriteria.RELEASE_DATE)
+            R.id.sort_by_lowest_price -> changeSortCriteria(SortCriteria.LOWEST_PRICE)
+            R.id.sort_by_highest_price -> changeSortCriteria(SortCriteria.HIGHEST_PRICE)
             R.id.refresh -> {
                 Log.i(TAG, "user requested to refresh game data via menu")
                 viewModel.loadInitialGames()
@@ -164,6 +180,11 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         viewModel.loadMoreGames()
 
         Log.v(TAG, "< onClick(v=$v)")
+    }
+
+    private fun changeSortCriteria(sortCriteria: SortCriteria) {
+        viewModel.sortCriteria = sortCriteria
+        shouldScrollToTop = true
     }
 
     inner class GameScrollListener : RecyclerView.OnScrollListener() {

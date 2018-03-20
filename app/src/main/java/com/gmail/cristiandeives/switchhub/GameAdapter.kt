@@ -18,12 +18,7 @@ internal class GameAdapter : RecyclerView.Adapter<GameViewHolder>(), View.OnClic
                 return
             }
 
-            if (value.size < field.size) {
-                notifyDataSetChanged()
-            } else {
-                notifyItemRangeInserted(field.size, value.size - field.size)
-            }
-
+            notifyDataSetChanged()
             field = value
         }
 
