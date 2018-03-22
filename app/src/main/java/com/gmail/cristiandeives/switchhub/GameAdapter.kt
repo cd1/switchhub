@@ -3,6 +3,7 @@ package com.gmail.cristiandeives.switchhub
 import android.content.Intent
 import android.support.annotation.MainThread
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -55,11 +56,15 @@ internal class GameAdapter : RecyclerView.Adapter<GameViewHolder>(), View.OnClic
 
     override fun onClick(view: View) {
         val context = recyclerView.context
-        val position = recyclerView.getChildAdapterPosition(view)
+        recyclerView.getChildAdapterPosition(view).takeIf { it >= 0 }?.let { position ->
+            val intent = Intent(context, GameDetailsActivity::class.java).apply {
+                putExtra(GameDetailsFragment.EXTRA_GAME, games[position])
+            }
+            context.startActivity(intent)
+        } ?: Log.d(TAG, "could not find clicked Game on RecyclerView's adapter; ignoring click")
+    }
 
-        val intent = Intent(context, GameDetailsActivity::class.java).apply {
-            putExtra(GameDetailsFragment.EXTRA_GAME, games[position])
-        }
-        context.startActivity(intent)
+    companion object {
+        private val TAG = GameAdapter::class.java.simpleName
     }
 }
