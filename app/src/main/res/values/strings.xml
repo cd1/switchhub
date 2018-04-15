@@ -30,6 +30,7 @@
     <string name="no_categories">Categories unspecified</string>
     <string name="choose_list">Choose a list</string>
     <string name="wish_list">Wish list</string>
+    <string name="my_games_list">My games list</string>
     <string name="no_list">No list</string>
 
     <!-- FrontBoxArtFragment -->

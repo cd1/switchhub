@@ -107,6 +107,7 @@ internal class GameDetailsFragment : Fragment(), View.OnClickListener {
 
         val newUserList = when (item.itemId) {
             R.id.wish_list_item -> LocalGame.UserList.WISH
+            R.id.my_games_list_item -> LocalGame.UserList.OWNED
             R.id.no_list_item -> LocalGame.UserList.NONE
             else -> {
                 itemConsumed = super.onContextItemSelected(item)
@@ -146,6 +147,7 @@ internal class GameDetailsFragment : Fragment(), View.OnClickListener {
     private fun LocalGame.UserList?.toTextViewString(): CharSequence {
         val listStrId = when (this) {
             LocalGame.UserList.WISH -> R.string.wish_list
+            LocalGame.UserList.OWNED -> R.string.my_games_list
             else -> R.string.no_list
         }
         val listStr = getString(listStrId)
@@ -157,6 +159,7 @@ internal class GameDetailsFragment : Fragment(), View.OnClickListener {
 
     private fun LocalGame.UserList?.toMenuItemId() = when (this) {
         LocalGame.UserList.WISH -> R.id.wish_list_item
+        LocalGame.UserList.OWNED -> R.id.my_games_list_item
         else -> R.id.no_list_item
     }
 

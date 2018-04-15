@@ -5,6 +5,9 @@
             android:id="@+id/wish_list_item"
             android:title="@string/wish_list" />
         <item
+            android:id="@+id/my_games_list_item"
+            android:title="@string/my_games_list" />
+        <item
             android:id="@+id/no_list_item"
             android:title="@string/no_list" />
     </group>

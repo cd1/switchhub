@@ -28,6 +28,7 @@ internal data class LocalGame(
     internal enum class UserList(val code: Int) {
         NONE(0),
         WISH(1),
+        OWNED(2),
     }
 
     companion object {
