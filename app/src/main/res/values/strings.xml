@@ -20,6 +20,7 @@
     <string name="no_games_found">No games found.</string>
     <string name="front_box_art_description">Game front box art</string>
     <string name="price_unavailable">Price unavailable</string>
+    <string name="wishlist_button_description">Wish list button</string>
 
     <!-- GameDetailsFragment -->
     <string name="no_game_title">Title unspecified</string>
@@ -27,6 +28,9 @@
     <string name="no_release_date">Release date unspecified</string>
     <string name="no_number_of_players">Number of players unspecified</string>
     <string name="no_categories">Categories unspecified</string>
+    <string name="choose_list">Choose a list</string>
+    <string name="wish_list">Wish list</string>
+    <string name="no_list">No list</string>
 
     <!-- FrontBoxArtFragment -->
     <string name="front_box_art_fullscreen_description">Game front box art in fullscreen</string>

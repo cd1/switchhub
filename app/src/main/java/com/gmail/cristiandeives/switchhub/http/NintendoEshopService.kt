@@ -7,10 +7,10 @@ import retrofit2.http.Query
 internal interface NintendoEshopService {
     @GET("/json/content/get/filter/game?system=switch&shop=ncom")
     fun getGames(
-        @Query("sort") sort: SortBy = SortBy.Featured,
-        @Query("direction") sortDirection: SortDirection = SortDirection.Descending,
-        @Query("limit") limit: Int = 50,
-        @Query("offset") offset: Int = 0
+        @Query("sort") sort: SortBy,
+        @Query("direction") sortDirection: SortDirection,
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int
     ): Call<GameResponse>
 
     enum class SortBy {

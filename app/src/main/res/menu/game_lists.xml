@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/wish_list_item"
+            android:title="@string/wish_list" />
+        <item
+            android:id="@+id/no_list_item"
+            android:title="@string/no_list" />
+    </group>
+</menu>

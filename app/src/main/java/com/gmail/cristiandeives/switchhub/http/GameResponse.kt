@@ -2,7 +2,7 @@ package com.gmail.cristiandeives.switchhub.http
 
 import android.net.Uri
 import android.util.Log
-import com.gmail.cristiandeives.switchhub.Game
+import com.gmail.cristiandeives.switchhub.NintendoGame
 import java.text.DateFormat
 import java.text.ParseException
 import java.util.Locale
@@ -11,13 +11,14 @@ internal data class GameResponse(val filter: ResponseFilter, val games: Response
 
 internal data class ResponseGames(val offset: Int, val limit: Int, private val game: List<GamesGame>?) {
     fun toGameData() = game?.map { g ->
-        Game(
+        NintendoGame(
+            id = g.id,
             nsuid = g.nsuid,
             title = g.title,
             releaseDate = try {
                 US_DATE_FORMAT.parse(g.release_date)
             } catch (e: ParseException) {
-                Log.e(TAG, "invalid release date format", e)
+                Log.w(TAG, "invalid release date format", e)
                 null
             },
             releaseDateDisplay = g.release_date_display,

@@ -16,36 +16,24 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        val viewModel = ViewModelProviders.of(this)[MainViewModel::class.java]
+        ViewModelProviders.of(this)[GamesViewModel::class.java].apply {
+            if (nintendoGames.value == null) {
+                Log.d(TAG, "no game info found")
+                changeFragmentTo(LoadingGamesFragment::class.java)
 
-        if (viewModel.games == null) {
-            Log.d(TAG, "no game info found")
+                loadingState.observe(this@MainActivity, Observer { state ->
+                    Log.v(TAG, "> loadingState#onChanged(t=$state)")
 
-            changeFragmentTo(LoadingGamesFragment::class.java)
-
-            viewModel.loadingState.observe(this, Observer { state ->
-                Log.v(TAG, "> loadingState#onChanged(t=$state)")
-
-                when (state) {
-                    LoadingState.LOADED, LoadingState.LOADED_ALL -> {
-                        viewModel.loadingState.removeObservers(this@MainActivity)
+                    if (state == LoadingState.LOADED || state == LoadingState.LOADED_ALL) {
+                        loadingState.removeObservers(this@MainActivity)
                         changeFragmentTo(GamesFragment::class.java)
                     }
 
-                    else -> Log.w(TAG, "unexpected state: $state")
-                }
-
-                Log.v(TAG, "< loadingState#onChanged(t=$state)")
-            })
-        } else {
-            Log.d(TAG, "previous game info found")
-
-            when (viewModel.loadingState.value) {
-                LoadingState.LOADING, LoadingState.LOADED, LoadingState.LOADED_ALL, LoadingState.FAILED -> {
-                    changeFragmentTo(GamesFragment::class.java)
-                }
-
-                else -> Log.w(TAG, "unexpected state: ${viewModel.loadingState.value}")
+                    Log.v(TAG, "< loadingState#onChanged(t=$state)")
+                })
+            } else {
+                Log.d(TAG, "previous game info found")
+                changeFragmentTo(GamesFragment::class.java)
             }
         }
 
@@ -60,9 +48,9 @@ class MainActivity : AppCompatActivity() {
         if (supportFragmentManager.findFragmentByTag(fragTag) == null) {
             val frag = fragClass.newInstance()
 
-            val tx = supportFragmentManager.beginTransaction()
-            tx.replace(R.id.fragment_container, frag, fragTag)
-            tx.commit()
+            supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, frag, fragTag)
+                    .commit()
         } else {
             Log.d(TAG, "fragment already exists; don't create a new one")
         }

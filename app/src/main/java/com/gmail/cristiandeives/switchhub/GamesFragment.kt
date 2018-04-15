@@ -21,11 +21,12 @@ import kotlinx.android.synthetic.main.fragment_games.*
 
 @MainThread
 internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, View.OnClickListener {
-    private lateinit var viewModel: MainViewModel
+    private lateinit var viewModel: GamesViewModel
     private lateinit var gameLayoutManager: GridLayoutManager
     private val gameAdapter = GameAdapter()
     private val gameScrollListener = GameScrollListener()
     private val failedSnackbarCb = FailedSnackbarCallback()
+    private var cachedState: LoadingState? = null
     private var shouldScrollToTop = false
     private var isSnackbarShowing = false
 
@@ -65,48 +66,25 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         Log.v(TAG, "> onActivityCreated(savedInstanceState=$savedInstanceState)")
         super.onActivityCreated(savedInstanceState)
 
-        activity?.let { parentActivity ->
-            viewModel = ViewModelProviders.of(parentActivity)[MainViewModel::class.java]
+        viewModel = ViewModelProviders.of(this)[GamesViewModel::class.java].apply {
+            var initialLoadingState: LoadingState? = loadingState.value
 
-            viewModel.games?.let { gameAdapter.games = it }
-
-            var initialLoadingState: LoadingState? = viewModel.loadingState.value
-
-            viewModel.loadingState.observe(this@GamesFragment, Observer { state ->
+            loadingState.observe(this@GamesFragment, Observer { state ->
                 Log.v(TAG, "> loadingState#onChanged(t=$state)")
 
-                when (state) {
-                    LoadingState.LOADED, LoadingState.LOADED_ALL -> {
-                        viewModel.games?.let { games ->
-                            if (shouldScrollToTop) {
-                                gameLayoutManager.scrollToPosition(0)
-                                shouldScrollToTop = false
-                            }
-                            if (!games.isEmpty()) {
-                                gameAdapter.games = games
-                                swipe_refresh.visibility = View.VISIBLE
-                                no_games_layout.visibility = View.GONE
-                            } else {
-                                swipe_refresh.visibility = View.GONE
-                                no_games_layout.visibility = View.VISIBLE
-                            }
-                        } ?: Log.wtf(TAG, "cannot update games because it is null; why did that happen when state = $state???")
+                cachedState = state
+
+                if (state == LoadingState.FAILED) {
+                    if (initialLoadingState == LoadingState.FAILED) {
+                        // don't display the snack because the error didn't happen now
+                        return@Observer
                     }
 
-                    LoadingState.FAILED -> {
-                        if (initialLoadingState == LoadingState.FAILED) {
-                            // don't display the snack because the error didn't happen now
-                            return@Observer
-                        }
-
-                        Snackbar.make(coordinator_layout, R.string.loading_games_failed_message, Snackbar.LENGTH_LONG).apply {
-                            setAction(R.string.try_again, this@GamesFragment)
-                            addCallback(failedSnackbarCb)
-                        }.show()
-                        isSnackbarShowing = true
-                    }
-
-                    else -> Log.w(TAG, "unexpected state: $state")
+                    Snackbar.make(coordinator_layout, R.string.loading_games_failed_message, Snackbar.LENGTH_LONG).apply {
+                        setAction(R.string.try_again, this@GamesFragment)
+                        addCallback(failedSnackbarCb)
+                    }.show()
+                    isSnackbarShowing = true
                 }
 
                 swipe_refresh.isRefreshing = (state == LoadingState.LOADING)
@@ -114,7 +92,38 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
 
                 Log.v(TAG, "< loadingState#onChanged(t=$state)")
             })
-        } ?: Log.w(TAG, "Fragment doesn't have a parent Activity; cannot get ViewModel")
+
+            nintendoGames.observe(this@GamesFragment, Observer { games ->
+                Log.v(TAG, "> nintendoGames#onChanged(t=$games)")
+
+                games?.let {
+                    if (shouldScrollToTop) {
+                        gameLayoutManager.scrollToPosition(0)
+                        shouldScrollToTop = false
+                    }
+                    if (!games.isEmpty()) {
+                        gameAdapter.nintendoGames = games
+                        swipe_refresh.visibility = View.VISIBLE
+                        no_games_layout.visibility = View.GONE
+                    } else {
+                        swipe_refresh.visibility = View.GONE
+                        no_games_layout.visibility = View.VISIBLE
+                    }
+                }
+
+                Log.v(TAG, "< nintendoGames#onChanged(t=$games)")
+            })
+
+            localGames.observe(this@GamesFragment, Observer { games ->
+                Log.v(TAG, "> localGames#onChanged(t=$games)")
+
+                games?.let { gs ->
+                    gameAdapter.localGames = gs
+                }
+
+                Log.v(TAG, "< localGames#onChanged(t=$games)")
+            })
+        }
 
         Log.v(TAG, "< onActivityCreated(savedInstanceState=$savedInstanceState)")
     }
@@ -151,7 +160,7 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
             R.id.sort_by_highest_price -> changeSortCriteria(SortCriteria.HIGHEST_PRICE)
             R.id.refresh -> {
                 Log.i(TAG, "user requested to refresh game data via menu")
-                viewModel.loadInitialGames()
+                viewModel.loadNintendoGames(true)
                 shouldScrollToTop = true
             }
             else -> {
@@ -168,7 +177,7 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         Log.v(TAG, "> onRefresh()")
 
         Log.i(TAG, "user requested to refresh game data by swiping down from the top")
-        viewModel.loadInitialGames()
+        viewModel.loadNintendoGames(true)
         shouldScrollToTop = true
 
         Log.v(TAG, "< onRefresh()")
@@ -177,7 +186,7 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
     override fun onClick(v: View) {
         Log.v(TAG, "> onClick(v=$v)")
 
-        viewModel.loadMoreGames()
+        viewModel.loadNintendoGames()
 
         Log.v(TAG, "< onClick(v=$v)")
     }
@@ -194,12 +203,12 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
             val isLastGameShown =
                 (gameLayoutManager.findLastVisibleItemPosition() + 1) == gameLayoutManager.itemCount
 
-            val isStateLoadedOrFailed = viewModel.loadingState.value.let { state ->
-                state == LoadingState.LOADED || state == LoadingState.FAILED
-            }
-            if (!isSnackbarShowing && isStateLoadedOrFailed && (isUserScrollingDown || isViewJustLoaded) && isLastGameShown) {
+            if (!isSnackbarShowing
+                    && (cachedState == LoadingState.LOADED || (cachedState == LoadingState.FAILED && !isViewJustLoaded))
+                    && (isUserScrollingDown || isViewJustLoaded)
+                    && isLastGameShown) {
                 Log.i(TAG, "user [implicitly] requested to refresh game data by reaching the bottom")
-                viewModel.loadMoreGames()
+                viewModel.loadNintendoGames()
             }
         }
     }
@@ -209,7 +218,9 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
 
         override fun onDismissed(transientBottomBar: Snackbar, event: Int) {
             Log.v(logTag, "> onDismissed(transientBottomBar: $transientBottomBar, event=$event)")
+
             isSnackbarShowing = false
+
             Log.v(logTag, "< onDismissed(transientBottomBar: $transientBottomBar, event=$event)")
         }
     }

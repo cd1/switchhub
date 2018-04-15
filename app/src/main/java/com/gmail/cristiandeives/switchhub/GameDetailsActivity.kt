@@ -14,7 +14,7 @@ class GameDetailsActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_game_details)
 
-        intent?.getParcelableExtra<Game>(GameDetailsFragment.EXTRA_GAME)?.let { game ->
+        intent?.getParcelableExtra<NintendoGame>(GameDetailsFragment.EXTRA_GAME)?.let { game ->
             supportActionBar?.title = game.title
 
             if (supportFragmentManager.findFragmentByTag(FrontBoxArtFragment.FRAGMENT_TAG) == null) {
@@ -24,7 +24,7 @@ class GameDetailsActivity : AppCompatActivity() {
                     .replace(R.id.fragment_container, fragment, FrontBoxArtFragment.FRAGMENT_TAG)
                     .commit()
             }
-        } ?: Log.w(TAG, "could not find Game [key=${GameDetailsFragment.EXTRA_GAME}] inside Activity.intent")
+        } ?: Log.w(TAG, "could not find NintendoGame [key=${GameDetailsFragment.EXTRA_GAME}] inside Activity.intent")
 
         Log.v(TAG, "< onCreate(savedInstanceState=$savedInstanceState)")
     }
@@ -32,13 +32,13 @@ class GameDetailsActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         Log.v(TAG, "> onOptionsItemSelected(item=$item)")
 
-        val itemConsumed = when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressed()
-                true
-            }
+        var itemConsumed = true
 
-            else -> super.onOptionsItemSelected(item)
+        when (item.itemId) {
+            android.R.id.home -> onBackPressed()
+            else -> {
+                itemConsumed = super.onOptionsItemSelected(item)
+            }
         }
 
         Log.v(TAG, "< onOptionsItemSelected(item=$item): $itemConsumed")

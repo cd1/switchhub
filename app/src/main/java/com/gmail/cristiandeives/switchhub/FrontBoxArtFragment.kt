@@ -37,10 +37,10 @@ internal class FrontBoxArtFragment : Fragment() {
     companion object {
         private val TAG = FrontBoxArtFragment::class.java.simpleName
 
-        internal const val EXTRA_FRONT_BOX_ART_URL = "front_box_art_url"
-        internal val FRAGMENT_TAG = FrontBoxArtFragment::class.java.simpleName
+        const val EXTRA_FRONT_BOX_ART_URL = "front_box_art_url"
+        val FRAGMENT_TAG: String = FrontBoxArtFragment::class.java.simpleName
 
-        internal fun newInstance(frontBoxArtUrl: Uri) = FrontBoxArtFragment().apply {
+        fun newInstance(frontBoxArtUrl: Uri) = FrontBoxArtFragment().apply {
             arguments = Bundle().apply { putParcelable(EXTRA_FRONT_BOX_ART_URL, frontBoxArtUrl) }
         }
     }

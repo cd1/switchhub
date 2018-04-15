@@ -9,7 +9,8 @@ import java.text.NumberFormat
 import java.util.Date
 import java.util.Locale
 
-internal data class Game(
+internal data class NintendoGame(
+    val id: String,
     val nsuid: String? = null,
     val title: String,
     val releaseDate: Date?,
@@ -21,7 +22,8 @@ internal data class Game(
     val categories: List<String>,
     val buyItNow: Boolean
 ) : Parcelable {
-    internal constructor(parcel: Parcel) : this(
+    constructor(parcel: Parcel) : this(
+        parcel.readString(),
         parcel.readString(),
         parcel.readString(),
         parcel.readDate(),
@@ -35,6 +37,7 @@ internal data class Game(
     )
 
     override fun writeToParcel(dest: Parcel, flags: Int) = dest.run {
+        writeString(id)
         writeString(nsuid)
         writeString(title)
         writeDate(releaseDate)
@@ -51,14 +54,14 @@ internal data class Game(
 
     companion object {
         @JvmField
-        val CREATOR = object : Parcelable.Creator<Game> {
-            override fun createFromParcel(source: Parcel) = Game(source)
+        val CREATOR = object : Parcelable.Creator<NintendoGame> {
+            override fun createFromParcel(source: Parcel) = NintendoGame(source)
 
-            override fun newArray(size: Int) = arrayOfNulls<Game>(size)
+            override fun newArray(size: Int) = arrayOfNulls<NintendoGame>(size)
         }
 
-        internal val US_CURRENCY_FORMAT = NumberFormat.getCurrencyInstance(Locale.US)
-        internal val DATE_FORMAT = DateFormat.getDateInstance()
+        val US_CURRENCY_FORMAT: NumberFormat = NumberFormat.getCurrencyInstance(Locale.US)
+        val DATE_FORMAT: DateFormat = DateFormat.getDateInstance()
 
         private fun Parcel.writeBigDecimal(value: BigDecimal?) = writeString(value?.toString())
 

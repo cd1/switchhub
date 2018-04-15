@@ -2,29 +2,57 @@ package com.gmail.cristiandeives.switchhub
 
 import android.content.Intent
 import android.support.annotation.MainThread
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import com.gmail.cristiandeives.switchhub.persistence.LocalGame
+import com.gmail.cristiandeives.switchhub.persistence.Repository
 import com.squareup.picasso.Picasso
 
 @MainThread
 internal class GameAdapter : RecyclerView.Adapter<GameViewHolder>(), View.OnClickListener {
-    private lateinit var recyclerView: RecyclerView
+    private var recyclerView: RecyclerView? = null
 
-    var games = emptyList<Game>()
+    var nintendoGames = emptyList<NintendoGame>()
         set(value) {
             if (value === field) {
                 return
             }
 
-            notifyDataSetChanged()
             field = value
+
+            notifyDataSetChanged()
+        }
+
+    var localGames = emptyList<LocalGame>()
+        set(value) {
+            if (value === field) {
+                return
+            }
+
+            field = value
+
+            notifyDataSetChanged()
         }
 
     override fun onAttachedToRecyclerView(attachedRecyclerView: RecyclerView) {
+        Log.v(TAG, "> onAttachedToRecyclerView(attachedRecyclerView=$attachedRecyclerView)")
+
         recyclerView = attachedRecyclerView
+
+        Log.v(TAG, "< onAttachedToRecyclerView(attachedRecyclerView=$attachedRecyclerView)")
+    }
+
+    override fun onDetachedFromRecyclerView(detachedRecyclerView: RecyclerView) {
+        Log.v(TAG, "> onDetachedFromRecyclerView(detachedRecyclerView=$detachedRecyclerView)")
+
+        recyclerView = null
+
+        Log.v(TAG, "< onDetachedFromRecyclerView(detachedRecyclerView=$detachedRecyclerView)")
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameViewHolder {
@@ -33,35 +61,87 @@ internal class GameAdapter : RecyclerView.Adapter<GameViewHolder>(), View.OnClic
             setOnClickListener(this@GameAdapter)
         }
 
+        view.findViewById<ImageButton>(R.id.wishlist_button).setOnClickListener(this)
+
         return GameViewHolder(view)
     }
 
-    override fun getItemCount() = games.size
+    override fun getItemCount() = nintendoGames.size
 
     override fun onBindViewHolder(holder: GameViewHolder, position: Int) {
-        val context = recyclerView.context
-        val g = games[position]
+        recyclerView?.let { rv ->
+            val context = rv.context
+            val nGame = nintendoGames[position]
+            val lGame = localGames.find { it.id == nGame.id }
 
-        holder.title.text = g.title
-        holder.price.text = g.price?.let { Game.US_CURRENCY_FORMAT.format(it) } ?: context.getString(R.string.price_unavailable)
+            val imageDrawable = ContextCompat.getDrawable(context, lGame?.userList.toDrawableId())
+            holder.wishlist.setImageDrawable(imageDrawable)
 
-        Picasso.with(context)
-            .load(g.frontBoxArtUrl)
-            .placeholder(R.drawable.ic_image_black)
-            .error(R.drawable.ic_broken_image_red)
-            .fit()
-            .centerCrop()
-            .into(holder.frontBoxArt)
+            holder.title.text = nGame.title
+            holder.price.text = nGame.price?.let { NintendoGame.US_CURRENCY_FORMAT.format(it) } ?: context.getString(R.string.price_unavailable)
+
+            Picasso.with(context)
+                .load(nGame.frontBoxArtUrl)
+                .placeholder(R.drawable.ic_image_black)
+                .error(R.drawable.ic_broken_image_red)
+                .fit()
+                .centerCrop()
+                .into(holder.frontBoxArt)
+        } ?: Log.w(TAG, "unable to perform binding operation when attached RecyclerView == null")
     }
 
     override fun onClick(view: View) {
-        val context = recyclerView.context
-        recyclerView.getChildAdapterPosition(view).takeIf { it >= 0 }?.let { position ->
-            val intent = Intent(context, GameDetailsActivity::class.java).apply {
-                putExtra(GameDetailsFragment.EXTRA_GAME, games[position])
-            }
-            context.startActivity(intent)
-        } ?: Log.d(TAG, "could not find clicked Game on RecyclerView's adapter; ignoring click")
+        Log.v(TAG, "> onClick(view=$view)")
+
+        when (view.id) {
+            R.id.wishlist_button -> toggleWishList(view)
+            else -> startGameDetailsActivity(view)
+        }
+
+        Log.v(TAG, "< onClick(view=$view)")
+    }
+
+    private fun toggleWishList(view: View) {
+        recyclerView?.let { rv ->
+            val context = rv.context
+
+            rv.getChildAdapterPosition(view.parent.parent as View).takeIf { it >= 0 }?.let { position ->
+                val id = nintendoGames[position].id
+                val lGame = localGames.find { it.id == id }?.apply {
+                    userList = if (userList == LocalGame.UserList.WISH) {
+                        LocalGame.UserList.NONE
+                    } else {
+                        LocalGame.UserList.WISH
+                    }
+                } ?: LocalGame(nintendoGames[position].id, LocalGame.UserList.WISH)
+
+                val repo = Repository.getInstance(context)
+                repo.saveLocalGame(lGame, onSuccess = {
+                    val holder = rv.findViewHolderForAdapterPosition(position) as GameViewHolder
+                    val imageDrawable = ContextCompat.getDrawable(context, lGame.userList.toDrawableId())
+                    holder.wishlist.setImageDrawable(imageDrawable)
+                })
+            } ?: Log.d(TAG, "could not find clicked NintendoGame on RecyclerView's adapter; ignoring click")
+        } ?: Log.w(TAG, "unable to perform clicking operation when attached RecyclerView is null")
+    }
+
+    private fun startGameDetailsActivity(view: View) {
+        recyclerView?.let { rv ->
+            val context = rv.context
+
+            rv.getChildAdapterPosition(view).takeIf { it >= 0 }?.let { position ->
+                val intent = Intent(context, GameDetailsActivity::class.java).apply {
+                    putExtra(GameDetailsFragment.EXTRA_GAME, nintendoGames[position])
+                }
+                context.startActivity(intent)
+            } ?: Log.d(TAG, "could not find clicked NintendoGame on RecyclerView's adapter; ignoring click")
+        } ?: Log.w(TAG, "unable to perform clicking operation when attached RecyclerView is null")
+    }
+
+    private fun LocalGame.UserList?.toDrawableId() = if (this == LocalGame.UserList.WISH) {
+        R.drawable.ic_wishlist_on
+    } else {
+        R.drawable.ic_wishlist_off
     }
 
     companion object {

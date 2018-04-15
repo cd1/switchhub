@@ -4,23 +4,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:overScrollMode="always">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="16dp">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/front_box_art"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_image_black"
             android:contentDescription="@string/front_box_art_description"
-            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/ic_image_black"
             app:layout_constraintBottom_toTopOf="@id/title"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/title"
@@ -32,10 +32,10 @@
             android:paddingTop="@dimen/game_details_activity_margin"
             android:text="@string/no_game_title"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
-            app:layout_constraintTop_toBottomOf="@+id/front_box_art"
             app:layout_constraintBottom_toTopOf="@id/price"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/front_box_art" />
 
         <TextView
             android:id="@+id/price"
@@ -44,15 +44,15 @@
             android:layout_marginEnd="@dimen/game_details_activity_margin"
             android:layout_marginStart="@dimen/game_details_activity_margin"
             android:layout_marginTop="@dimen/game_details_between_lines"
-            android:drawableStart="@drawable/ic_price"
             android:drawablePadding="@dimen/game_details_drawable_text_padding"
+            android:drawableStart="@drawable/ic_price"
             android:gravity="center_vertical"
             android:text="@string/no_price"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            app:layout_constraintTop_toBottomOf="@id/title"
             app:layout_constraintBottom_toTopOf="@id/release_date"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/title" />
 
         <TextView
             android:id="@+id/release_date"
@@ -61,15 +61,15 @@
             android:layout_marginEnd="@dimen/game_details_activity_margin"
             android:layout_marginStart="@dimen/game_details_activity_margin"
             android:layout_marginTop="@dimen/game_details_between_lines"
-            android:drawableStart="@drawable/ic_date"
             android:drawablePadding="@dimen/game_details_drawable_text_padding"
+            android:drawableStart="@drawable/ic_date"
             android:gravity="center_vertical"
             android:text="@string/no_release_date"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            app:layout_constraintTop_toBottomOf="@+id/price"
             app:layout_constraintBottom_toTopOf="@id/number_of_players"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/price" />
 
         <TextView
             android:id="@+id/number_of_players"
@@ -78,15 +78,15 @@
             android:layout_marginEnd="@dimen/game_details_activity_margin"
             android:layout_marginStart="@dimen/game_details_activity_margin"
             android:layout_marginTop="@dimen/game_details_between_lines"
-            android:drawableStart="@drawable/ic_player"
             android:drawablePadding="@dimen/game_details_drawable_text_padding"
+            android:drawableStart="@drawable/ic_player"
             android:gravity="center_vertical"
             android:text="@string/no_number_of_players"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            app:layout_constraintTop_toBottomOf="@+id/release_date"
             app:layout_constraintBottom_toTopOf="@id/categories"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/release_date" />
 
         <TextView
             android:id="@+id/categories"
@@ -95,14 +95,45 @@
             android:layout_marginEnd="@dimen/game_details_activity_margin"
             android:layout_marginStart="@dimen/game_details_activity_margin"
             android:layout_marginTop="@dimen/game_details_between_lines"
-            android:drawableStart="@drawable/ic_category"
             android:drawablePadding="@dimen/game_details_drawable_text_padding"
+            android:drawableStart="@drawable/ic_category"
             android:gravity="center_vertical"
             android:text="@string/no_categories"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            app:layout_constraintTop_toBottomOf="@+id/number_of_players"
+            app:layout_constraintBottom_toTopOf="@id/divider"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/number_of_players" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/divider_height"
+            android:layout_marginEnd="@dimen/game_details_activity_margin"
+            android:layout_marginStart="@dimen/game_details_activity_margin"
+            android:layout_marginTop="@dimen/game_details_between_lines"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintBottom_toTopOf="@id/list"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/categories" />
+
+        <TextView
+            android:id="@+id/list"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/game_details_activity_margin"
+            android:layout_marginStart="@dimen/game_details_activity_margin"
+            android:layout_marginTop="@dimen/game_details_between_lines"
+            android:paddingBottom="@dimen/game_details_activity_margin"
+            android:drawablePadding="@dimen/game_details_drawable_text_padding"
+            android:drawableStart="@drawable/ic_list"
+            android:gravity="center_vertical"
+            android:text="@string/no_list"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider" />
 
     </android.support.constraint.ConstraintLayout>
 
