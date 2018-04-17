@@ -30,7 +30,9 @@
     <string name="choose_list">Escolha uma lista</string>
     <string name="wish_list">Lista de desejos</string>
     <string name="my_games_list">Lista dos meus jogos</string>
+    <string name="hidden_games_list">Lista de jogos ocultos</string>
     <string name="no_list">Nenhuma lista</string>
+    <string name="hidden_game_warning">Esse jogo está oculto. Você não vai conseguir acessá-lo a partir da tela principal.</string>
 
     <!-- FrontBoxArtFragment -->
     <string name="front_box_art_fullscreen_description">Arte de capa do jogo em tela cheia</string>

@@ -8,6 +8,9 @@
             android:id="@+id/my_games_list_item"
             android:title="@string/my_games_list" />
         <item
+            android:id="@+id/hidden_games_list_item"
+            android:title="@string/hidden_games_list" />
+        <item
             android:id="@+id/no_list_item"
             android:title="@string/no_list" />
     </group>

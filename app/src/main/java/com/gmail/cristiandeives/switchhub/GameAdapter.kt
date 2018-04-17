@@ -19,11 +19,12 @@ internal class GameAdapter : RecyclerView.Adapter<GameViewHolder>(), View.OnClic
 
     var nintendoGames = emptyList<NintendoGame>()
         set(value) {
-            if (value === field) {
+            val nonHiddenGames = value.filterNot { v -> localGames.find { v.id == it.id }?.userList == LocalGame.UserList.HIDDEN }
+            if (nonHiddenGames === field) {
                 return
             }
 
-            field = value
+            field = nonHiddenGames
 
             notifyDataSetChanged()
         }
@@ -35,6 +36,11 @@ internal class GameAdapter : RecyclerView.Adapter<GameViewHolder>(), View.OnClic
             }
 
             field = value
+
+            val nonHiddenGames = nintendoGames.filterNot { game -> value.find { game.id == it.id }?.userList == LocalGame.UserList.HIDDEN }
+            if (nonHiddenGames !== nintendoGames) {
+                nintendoGames = nonHiddenGames
+            }
 
             notifyDataSetChanged()
         }

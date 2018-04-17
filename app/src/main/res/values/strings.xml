@@ -31,7 +31,9 @@
     <string name="choose_list">Choose a list</string>
     <string name="wish_list">Wish list</string>
     <string name="my_games_list">My games list</string>
+    <string name="hidden_games_list">Hidden games list</string>
     <string name="no_list">No list</string>
+    <string name="hidden_game_warning">This game is hidden. You won\'t be able to access it from the main screen.</string>
 
     <!-- FrontBoxArtFragment -->
     <string name="front_box_art_fullscreen_description">Game front box art in fullscreen</string>

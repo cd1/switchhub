@@ -29,6 +29,7 @@ internal data class LocalGame(
         NONE(0),
         WISH(1),
         OWNED(2),
+        HIDDEN(3),
     }
 
     companion object {
