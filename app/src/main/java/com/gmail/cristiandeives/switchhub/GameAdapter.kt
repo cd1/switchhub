@@ -123,9 +123,10 @@ internal class GameAdapter : RecyclerView.Adapter<GameViewHolder>(), View.OnClic
 
                 val repo = Repository.getInstance(context)
                 repo.saveLocalGame(lGame, onSuccess = {
-                    val holder = rv.findViewHolderForAdapterPosition(position) as GameViewHolder
-                    val imageDrawable = ContextCompat.getDrawable(context, lGame.userList.toDrawableId())
-                    holder.wishlist.setImageDrawable(imageDrawable)
+                    rv.findViewHolderForAdapterPosition(position)?.let { holder ->
+                        val imageDrawable = ContextCompat.getDrawable(context, lGame.userList.toDrawableId())
+                        (holder as GameViewHolder).wishlist.setImageDrawable(imageDrawable)
+                    } ?: Log.d(TAG, "could not find ViewHolder for position $position; ignoring wishlist icon change")
                 })
             } ?: Log.d(TAG, "could not find clicked NintendoGame on RecyclerView's adapter; ignoring click")
         } ?: Log.w(TAG, "unable to perform clicking operation when attached RecyclerView is null")
