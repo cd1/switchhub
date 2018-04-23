@@ -16,7 +16,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            android:text="This game is hidden. You won't be able to access it from the main screen."
+            android:text="@string/hidden_game_warning"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             android:textAlignment="center"
             android:background="@color/hidden_warning_bg"
