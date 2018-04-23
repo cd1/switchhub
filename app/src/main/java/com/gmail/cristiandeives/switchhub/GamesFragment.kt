@@ -4,12 +4,10 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.annotation.MainThread
-import android.support.design.widget.BaseTransientBottomBar
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
@@ -24,11 +22,8 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
     private lateinit var viewModel: GamesViewModel
     private lateinit var gameLayoutManager: GridLayoutManager
     private val gameAdapter = GameAdapter()
-    private val gameScrollListener = GameScrollListener()
-    private val failedSnackbarCb = FailedSnackbarCallback()
     private var cachedState: LoadingState? = null
     private var shouldScrollToTop = false
-    private var isSnackbarShowing = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         Log.v(TAG, "> onCreateView(inflater=$inflater, container=$container, savedInstanceState=$savedInstanceState)")
@@ -50,7 +45,6 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         games_view.apply {
             setHasFixedSize(true)
             layoutManager = gameLayoutManager
-            addOnScrollListener(gameScrollListener)
             adapter = gameAdapter
         }
 
@@ -80,11 +74,9 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
                         return@Observer
                     }
 
-                    Snackbar.make(coordinator_layout, R.string.loading_games_failed_message, Snackbar.LENGTH_LONG).apply {
-                        setAction(R.string.try_again, this@GamesFragment)
-                        addCallback(failedSnackbarCb)
-                    }.show()
-                    isSnackbarShowing = true
+                    Snackbar.make(coordinator_layout, R.string.loading_games_failed_message, Snackbar.LENGTH_LONG)
+                        .setAction(R.string.try_again, this@GamesFragment)
+                        .show()
                 }
 
                 swipe_refresh.isRefreshing = (state == LoadingState.LOADING)
@@ -96,13 +88,13 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
             nintendoGames.observe(this@GamesFragment, Observer { games ->
                 Log.v(TAG, "> nintendoGames#onChanged(t=$games)")
 
-                games?.let {
+                games?.let { gs ->
                     if (shouldScrollToTop) {
                         gameLayoutManager.scrollToPosition(0)
                         shouldScrollToTop = false
                     }
-                    if (!games.isEmpty()) {
-                        gameAdapter.nintendoGames = games
+                    if (!gs.isEmpty()) {
+                        gameAdapter.nintendoGames = gs
                         swipe_refresh.visibility = View.VISIBLE
                         no_games_layout.visibility = View.GONE
                     } else {
@@ -139,8 +131,6 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         Log.v(TAG, "> onOptionsItemSelected(item=$item)")
 
-        var itemConsumed = true
-
         when (item.itemId) {
             R.id.sort -> {
                 val subMenuId = when (viewModel.sortCriteria) {
@@ -160,15 +150,15 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
             R.id.sort_by_highest_price -> changeSortCriteria(SortCriteria.HIGHEST_PRICE)
             R.id.refresh -> {
                 Log.i(TAG, "user requested to refresh game data via menu")
-                viewModel.loadNintendoGames(true)
+                viewModel.loadNintendoGames()
                 shouldScrollToTop = true
             }
             else -> {
-                Log.wtf(TAG, "unexpected menu item: ${resources.getResourceEntryName(item.itemId)}")
-                itemConsumed = false
+                throw IllegalArgumentException("unexpected clicked options item: $item")
             }
         }
 
+        val itemConsumed = true
         Log.v(TAG, "< onOptionsItemSelected(item=$item): $itemConsumed")
         return itemConsumed
     }
@@ -177,7 +167,7 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         Log.v(TAG, "> onRefresh()")
 
         Log.i(TAG, "user requested to refresh game data by swiping down from the top")
-        viewModel.loadNintendoGames(true)
+        viewModel.loadNintendoGames()
         shouldScrollToTop = true
 
         Log.v(TAG, "< onRefresh()")
@@ -194,35 +184,6 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
     private fun changeSortCriteria(sortCriteria: SortCriteria) {
         viewModel.sortCriteria = sortCriteria
         shouldScrollToTop = true
-    }
-
-    inner class GameScrollListener : RecyclerView.OnScrollListener() {
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            val isUserScrollingDown = dy > 0
-            val isViewJustLoaded = (dx == 0 && dy == 0)
-            val isLastGameShown =
-                (gameLayoutManager.findLastVisibleItemPosition() + 1) == gameLayoutManager.itemCount
-
-            if (!isSnackbarShowing
-                    && (cachedState == LoadingState.LOADED || (cachedState == LoadingState.FAILED && !isViewJustLoaded))
-                    && (isUserScrollingDown || isViewJustLoaded)
-                    && isLastGameShown) {
-                Log.i(TAG, "user [implicitly] requested to refresh game data by reaching the bottom")
-                viewModel.loadNintendoGames()
-            }
-        }
-    }
-
-    inner class FailedSnackbarCallback : BaseTransientBottomBar.BaseCallback<Snackbar>() {
-        private val logTag = FailedSnackbarCallback::class.java.simpleName
-
-        override fun onDismissed(transientBottomBar: Snackbar, event: Int) {
-            Log.v(logTag, "> onDismissed(transientBottomBar: $transientBottomBar, event=$event)")
-
-            isSnackbarShowing = false
-
-            Log.v(logTag, "< onDismissed(transientBottomBar: $transientBottomBar, event=$event)")
-        }
     }
 
     companion object {

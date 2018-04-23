@@ -43,7 +43,7 @@ internal class LoadingGamesFragment : Fragment(), View.OnClickListener {
 
                     when (state) {
                         // TODO: LOADING too???
-                        LoadingState.NOT_LOADED, LoadingState.LOADING -> loadNintendoGames(true)
+                        LoadingState.NOT_LOADED, LoadingState.LOADING -> loadNintendoGames()
 
                         LoadingState.FAILED -> {
                             loading_message_view.visibility = View.GONE
@@ -64,9 +64,15 @@ internal class LoadingGamesFragment : Fragment(), View.OnClickListener {
     override fun onClick(v: View) {
         Log.v(TAG, "> onClick(v=$v)")
 
-        failed_to_load_view.visibility = View.GONE
-        loading_message_view.visibility = View.VISIBLE
-        viewModel.loadNintendoGames(true)
+        when (v.id) {
+            R.id.try_again_button -> {
+                failed_to_load_view.visibility = View.GONE
+                loading_message_view.visibility = View.VISIBLE
+                viewModel.loadNintendoGames()
+            }
+
+            else -> throw IllegalArgumentException("unexpected clicked view: $v")
+        }
 
         Log.v(TAG, "< onClick(v=$v)")
     }

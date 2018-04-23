@@ -32,20 +32,20 @@ internal class GamesViewModel(app: Application) : AndroidViewModel(app) {
             sharedPrefs.edit()
                 .putInt(PREF_KEY_SORT, value.ordinal)
                 .apply()
-            loadNintendoGames(true)
+            loadNintendoGames()
         }
 
-    fun loadNintendoGames(fromStart: Boolean = false) {
+    fun loadNintendoGames() {
         if (loadingState.value != LoadingState.LOADING) {
             loadingState.value = LoadingState.LOADING
 
-            repo.refreshNintendoGames(sortCriteria.sortBy, sortCriteria.sortDirection, fromStart, onSuccess = { moreGamesAvailable ->
-                loadingState.value = if (moreGamesAvailable) LoadingState.LOADED else LoadingState.LOADED_ALL
+            repo.refreshNintendoGames(sortCriteria.sortBy, sortCriteria.sortDirection, onSuccess = {
+                loadingState.value = LoadingState.LOADED
             }, onError = {
                 loadingState.value = LoadingState.FAILED
             })
         } else {
-            Log.d(TAG, "some game page is already loading; don't try to load something else")
+            Log.d(TAG, "games are already loading; won't try to load them again")
         }
     }
 

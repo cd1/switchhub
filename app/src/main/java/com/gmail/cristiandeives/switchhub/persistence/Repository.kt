@@ -25,49 +25,51 @@ internal class Repository private constructor(ctx: Context) {
         .create(NintendoEshopService::class.java)
     private val executor = Executors.newCachedThreadPool()
     private val uiHandler = Handler()
-    private val nintendoGamesPageSize = 100
-    private var nintendoGamesPage = 0
 
     val nintendoGames = MutableLiveData<List<NintendoGame>>()
 
     inline fun refreshNintendoGames(
         sort: NintendoEshopService.SortBy = NintendoEshopService.SortBy.Featured,
         direction: NintendoEshopService.SortDirection = NintendoEshopService.SortDirection.Descending,
-        fromStart: Boolean = true,
-        crossinline onSuccess: (moreGamesAvailable: Boolean) -> Unit = {},
+        crossinline onSuccess: () -> Unit = {},
         crossinline onError: (e: Exception) -> Unit = {}
     ) {
-
-        val nextPage = if (fromStart) 0 else nintendoGamesPage + 1
-        val offset = nextPage * nintendoGamesPageSize
+        Log.d(TAG, "loading Nintendo games...")
 
         executor.execute {
             try {
-                Log.d(TAG, "loading game page #$nextPage; offset = $offset, limit = $nintendoGamesPageSize")
-                val response = eshopRetrofitService.getGames(sort, direction, nintendoGamesPageSize, offset).execute()
-                if (response.isSuccessful) {
-                    Log.d(TAG, "received successful response")
-                    nintendoGamesPage = nextPage
+                val newGames = mutableListOf<NintendoGame>()
 
-                    val newGames = response.body()?.games?.toGameData() ?: emptyList()
-                    Log.d(TAG, "new Nintendo Games: ${newGames.size}/$nintendoGamesPageSize")
+                // I need this "pageLoop" label to break out of the .forEach below...
+                run pageLoop@ {
+                    generateSequence(0) { it + 1 }.forEach { page ->
+                        Log.d(TAG, "page #$page")
+                        val response = eshopRetrofitService.getGames(sort, direction, PAGE_SIZE, page * PAGE_SIZE).execute()
+                        if (response.isSuccessful) {
+                            Log.d(TAG, "received successful response")
 
-                    uiHandler.post {
-                        nintendoGames.value = if (fromStart) {
-                            newGames
+                            val responseGames = response.body()?.games?.toGameData() ?: emptyList()
+                            Log.d(TAG, "new Nintendo games: ${responseGames.size}")
+                            newGames += responseGames
+
+                            if (responseGames.size < PAGE_SIZE) {
+                                return@pageLoop
+                            }
                         } else {
-                            nintendoGames.value?.let { it + newGames } ?: newGames
+                            Log.e(TAG, "server responded with unexpected status: ${response.code()}")
+                            response.errorBody().use { body ->
+                                uiHandler.post {
+                                    onError(RuntimeException(body?.string()))
+                                }
+                                return@execute
+                            }
                         }
+                    }
+                }
 
-                        onSuccess(newGames.size == nintendoGamesPageSize)
-                    }
-                } else {
-                    Log.e(TAG, "server responded with unexpected status: ${response.code()}")
-                    response.errorBody().use { body ->
-                        uiHandler.post {
-                            onError(RuntimeException(body?.string()))
-                        }
-                    }
+                nintendoGames.postValue(newGames)
+                uiHandler.post {
+                    onSuccess()
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "failed to execute GET request", e)
@@ -132,6 +134,7 @@ internal class Repository private constructor(ctx: Context) {
 
     companion object {
         private const val DATABASE_NAME = "switchhub.db"
+        private const val PAGE_SIZE = 200
 
         private val TAG = Repository::class.java.simpleName
         private var instance: Repository?  = null

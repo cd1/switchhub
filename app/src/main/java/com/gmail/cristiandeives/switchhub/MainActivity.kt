@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
                 loadingState.observe(this@MainActivity, Observer { state ->
                     Log.v(TAG, "> loadingState#onChanged(t=$state)")
 
-                    if (state == LoadingState.LOADED || state == LoadingState.LOADED_ALL) {
+                    if (state == LoadingState.LOADED) {
                         loadingState.removeObservers(this@MainActivity)
                         changeFragmentTo(GamesFragment::class.java)
                     }
