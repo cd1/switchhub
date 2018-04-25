@@ -12,6 +12,7 @@ import java.util.Locale
 internal data class NintendoGame(
     val id: String,
     val nsuid: String? = null,
+    val featuredIndex: Int,
     val title: String,
     val releaseDate: Date?,
     val releaseDateDisplay: String?,
@@ -25,6 +26,7 @@ internal data class NintendoGame(
     constructor(parcel: Parcel) : this(
         parcel.readString(),
         parcel.readString(),
+        parcel.readInt(),
         parcel.readString(),
         parcel.readDate(),
         parcel.readString(),
@@ -39,6 +41,7 @@ internal data class NintendoGame(
     override fun writeToParcel(dest: Parcel, flags: Int) = dest.run {
         writeString(id)
         writeString(nsuid)
+        writeInt(featuredIndex)
         writeString(title)
         writeDate(releaseDate)
         writeString(releaseDateDisplay)

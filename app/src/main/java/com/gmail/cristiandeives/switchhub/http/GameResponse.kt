@@ -10,10 +10,11 @@ import java.util.Locale
 internal data class GameResponse(val filter: ResponseFilter, val games: ResponseGames)
 
 internal data class ResponseGames(val offset: Int, val limit: Int, private val game: List<GamesGame>?) {
-    fun toGameData() = game?.map { g ->
+    fun toGameData() = game?.mapIndexed { index, g ->
         NintendoGame(
             id = g.id,
             nsuid = g.nsuid,
+            featuredIndex = offset + index,
             title = g.title,
             releaseDate = try {
                 US_DATE_FORMAT.parse(g.release_date)

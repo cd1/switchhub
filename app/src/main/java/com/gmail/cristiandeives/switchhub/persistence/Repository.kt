@@ -29,8 +29,6 @@ internal class Repository private constructor(ctx: Context) {
     val nintendoGames = MutableLiveData<List<NintendoGame>>()
 
     inline fun refreshNintendoGames(
-        sort: NintendoEshopService.SortBy = NintendoEshopService.SortBy.Featured,
-        direction: NintendoEshopService.SortDirection = NintendoEshopService.SortDirection.Descending,
         crossinline onSuccess: () -> Unit = {},
         crossinline onError: (e: Exception) -> Unit = {}
     ) {
@@ -44,7 +42,7 @@ internal class Repository private constructor(ctx: Context) {
                 run pageLoop@ {
                     generateSequence(0) { it + 1 }.forEach { page ->
                         Log.d(TAG, "page #$page")
-                        val response = eshopRetrofitService.getGames(sort, direction, PAGE_SIZE, page * PAGE_SIZE).execute()
+                        val response = eshopRetrofitService.getGames(PAGE_SIZE, page * PAGE_SIZE).execute()
                         if (response.isSuccessful) {
                             Log.d(TAG, "received successful response")
 
