@@ -13,14 +13,14 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import com.gmail.cristiandeives.switchhub.persistence.LocalGame
+import com.gmail.cristiandeives.switchhub.persistence.Game
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_game_details.*
 
 @MainThread
 internal class GameDetailsFragment : Fragment(), View.OnClickListener {
     private lateinit var viewModel: GameDetailsViewModel
-    private var cachedLocalGame: LocalGame? = null
+    private var cachedGame: Game? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         Log.v(TAG, "> onCreateView(inflater=$inflater, container=$container, savedInstanceState=$savedInstanceState)")
@@ -33,30 +33,6 @@ internal class GameDetailsFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.v(TAG, "> onViewCreated(view=$view, savedInstanceState=$savedInstanceState)")
-
-        arguments?.getParcelable<NintendoGame>(EXTRA_GAME)?.let { game ->
-            Picasso.with(context)
-                .load(game.frontBoxArtUrl)
-                .placeholder(R.drawable.ic_image_black)
-                .error(R.drawable.ic_broken_image_red)
-                .fit()
-                .centerCrop()
-                .into(front_box_art)
-            front_box_art.setOnClickListener(this)
-
-            title.text = game.title
-
-            game.price?.let { price.text = NintendoGame.US_CURRENCY_FORMAT.format(it) }
-
-            // TODO: add translation
-            release_date.text = game.releaseDateDisplay ?: game.releaseDate?.let { NintendoGame.DATE_FORMAT.format(it) }
-
-            // TODO: add translation
-            number_of_players.text = game.numberOfPlayers.capitalize()
-
-            // TODO: add translation
-            game.categories.takeIf { it.isNotEmpty() }?.let { categories.text = it.joinToString(", ") }
-        } ?: Log.w(TAG, "could not find NintendoGame [key=$EXTRA_GAME] inside Fragment.arguments")
 
         list.apply {
             setOnCreateContextMenuListener(this@GameDetailsFragment)
@@ -71,23 +47,48 @@ internal class GameDetailsFragment : Fragment(), View.OnClickListener {
         super.onActivityCreated(savedInstanceState)
 
         viewModel = ViewModelProviders.of(this)[GameDetailsViewModel::class.java].apply {
-            gameId = arguments?.getParcelable<NintendoGame>(EXTRA_GAME)?.id
+            gameId = arguments?.getString(EXTRA_GAME_ID)
 
-            localGame?.observe(this@GameDetailsFragment, Observer { game ->
-                Log.v(TAG, "> localGame#onChanged(t=$game)")
+            game?.observe(this@GameDetailsFragment, Observer { game ->
+                Log.v(TAG, "> game#onChanged(t=$game)")
 
-                cachedLocalGame = game
-                game?.userList?.let { userList ->
-                    hidden_game_warning.visibility = if (userList == LocalGame.UserList.HIDDEN) {
+                game?.let { g ->
+                    Picasso.with(context)
+                        .load(g.frontBoxArtUrl)
+                        .placeholder(R.drawable.ic_image_black)
+                        .error(R.drawable.ic_broken_image_red)
+                        .fit()
+                        .centerCrop()
+                        .into(front_box_art)
+                    front_box_art.setOnClickListener(this@GameDetailsFragment)
+
+                    title.text = g.title
+
+                    g.price?.let { price.text = Game.US_CURRENCY_FORMAT.format(it) }
+
+                    // TODO: add translation
+                    release_date.text = g.releaseDateDisplay.takeIf { it.isNotEmpty() }
+                            ?: g.releaseDate?.let { Game.DATE_FORMAT.format(it) }
+
+                    // TODO: add translation
+                    number_of_players.text = g.numberOfPlayers.capitalize()
+
+                    // TODO: add translation
+                    g.categories.takeIf { it.isNotEmpty() }
+                        ?.let { categories.text = it.joinToString(", ") }
+
+                    hidden_game_warning.visibility = if (g.userList == Game.UserList.HIDDEN) {
                         View.VISIBLE
                     } else {
                         View.GONE
                     }
 
-                    list.text = userList.toTextViewString()
-                }
+                    list.text = g.userList.toTextViewString()
+                } ?: Log.w(TAG, "cannot find game data to be displayed")
 
-                Log.v(TAG, "< localGame#onChanged(t=$game)")
+                cachedGame = game
+
+                Log.v(TAG, "< game#onChanged(t=$game)")
             })
         }
 
@@ -99,10 +100,13 @@ internal class GameDetailsFragment : Fragment(), View.OnClickListener {
 
         activity?.menuInflater?.inflate(R.menu.game_lists, menu)
 
-        val menuItemId = cachedLocalGame?.userList.toMenuItemId()
         menu.apply {
             setHeaderTitle(R.string.choose_list)
-            findItem(menuItemId).isChecked = true
+
+            cachedGame?.let { g ->
+                val menuItemId = g.userList.toMenuItemId()
+                findItem(menuItemId).isChecked = true
+            } ?: Log.w(TAG, "unable to check current sorting criteria because there's no game data")
         }
 
         Log.v(TAG, "< onCreateContextMenu(menu=$menu, v=$v, menuInfo=$menuInfo)")
@@ -114,13 +118,13 @@ internal class GameDetailsFragment : Fragment(), View.OnClickListener {
         var itemConsumed = true
 
         val newUserList = when (item.itemId) {
-            R.id.wish_list_item -> LocalGame.UserList.WISH
-            R.id.my_games_list_item -> LocalGame.UserList.OWNED
-            R.id.hidden_games_list_item -> LocalGame.UserList.HIDDEN
-            R.id.no_list_item -> LocalGame.UserList.NONE
+            R.id.wish_list_item -> Game.UserList.WISH
+            R.id.my_games_list_item -> Game.UserList.OWNED
+            R.id.hidden_games_list_item -> Game.UserList.HIDDEN
+            R.id.no_list_item -> Game.UserList.NONE
             else -> {
                 itemConsumed = super.onContextItemSelected(item)
-                LocalGame.UserList.NONE
+                Game.UserList.NONE
             }
         }
 
@@ -144,20 +148,20 @@ internal class GameDetailsFragment : Fragment(), View.OnClickListener {
     }
 
     private fun displayFrontBoxArtInFullScreen() {
-        arguments?.getParcelable<NintendoGame>(EXTRA_GAME)?.frontBoxArtUrl?.let { url ->
+        cachedGame?.let { g ->
             activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.fragment_container, FrontBoxArtFragment.newInstance(url), FrontBoxArtFragment.FRAGMENT_TAG)
+                ?.replace(R.id.fragment_container, FrontBoxArtFragment.newInstance(g.frontBoxArtUrl), FrontBoxArtFragment.FRAGMENT_TAG)
                 ?.addToBackStack(null)
                 ?.commit()
                     ?: Log.w(TAG, "unable to perform a Fragment transaction on the parent activity")
-        } ?: Log.w(TAG, "could not find NintendoGame [key=$EXTRA_GAME] inside Fragment.arguments")
+        } ?: Log.w(TAG, "unable to display front box art because there's no game data")
     }
 
-    private fun LocalGame.UserList?.toTextViewString(): CharSequence {
+    private fun Game.UserList?.toTextViewString(): CharSequence {
         val listStrId = when (this) {
-            LocalGame.UserList.WISH -> R.string.wish_list
-            LocalGame.UserList.OWNED -> R.string.my_games_list
-            LocalGame.UserList.HIDDEN -> R.string.hidden_games_list
+            Game.UserList.WISH -> R.string.wish_list
+            Game.UserList.OWNED -> R.string.my_games_list
+            Game.UserList.HIDDEN -> R.string.hidden_games_list
             else -> R.string.no_list
         }
         val listStr = getString(listStrId)
@@ -167,20 +171,20 @@ internal class GameDetailsFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    private fun LocalGame.UserList?.toMenuItemId() = when (this) {
-        LocalGame.UserList.WISH -> R.id.wish_list_item
-        LocalGame.UserList.OWNED -> R.id.my_games_list_item
-        LocalGame.UserList.HIDDEN -> R.id.hidden_games_list_item
+    private fun Game.UserList?.toMenuItemId() = when (this) {
+        Game.UserList.WISH -> R.id.wish_list_item
+        Game.UserList.OWNED -> R.id.my_games_list_item
+        Game.UserList.HIDDEN -> R.id.hidden_games_list_item
         else -> R.id.no_list_item
     }
 
     companion object {
         private val TAG = GameDetailsFragment::class.java.simpleName
 
-        const val EXTRA_GAME = "game"
+        const val EXTRA_GAME_ID = "game_id"
 
-        fun newInstance(nintendoGame: NintendoGame) = GameDetailsFragment().apply {
-            arguments = Bundle().apply { putParcelable(EXTRA_GAME, nintendoGame) }
+        fun newInstance(gameId: String) = GameDetailsFragment().apply {
+            arguments = Bundle().apply { putString(EXTRA_GAME_ID, gameId) }
         }
     }
 }

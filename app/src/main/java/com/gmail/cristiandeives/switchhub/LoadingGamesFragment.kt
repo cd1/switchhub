@@ -38,20 +38,25 @@ internal class LoadingGamesFragment : Fragment(), View.OnClickListener {
 
         activity?.let { parentActivity ->
             viewModel = ViewModelProviders.of(parentActivity)[GamesViewModel::class.java].apply {
+                games.observe(this@LoadingGamesFragment, Observer { gs ->
+                    Log.v(TAG, "> games#onChanged(t[]=${gs?.size})")
+
+                    if (loadingState.value == LoadingState.NOT_LOADED &&
+                            (gs?.isEmpty() != false || gs.all { it.title.isEmpty() })) {
+                        loadGames()
+                    }
+
+                    Log.v(TAG, "< games#onChanged(t[]=${gs?.size})")
+                })
+
                 loadingState.observe(this@LoadingGamesFragment, Observer { state ->
                     Log.v(TAG, "> loadingState#onChanged(t=$state)")
 
-                    when (state) {
-                        // TODO: LOADING too???
-                        LoadingState.NOT_LOADED, LoadingState.LOADING -> loadNintendoGames()
-
-                        LoadingState.FAILED -> {
-                            loading_message_view.visibility = View.GONE
-                            failed_to_load_view.visibility = View.VISIBLE
-                        }
-
-                        else -> Log.w(TAG, "unexpected state: $state")
+                    if (state == LoadingState.FAILED) {
+                        loading_message_view.visibility = View.GONE
+                        failed_to_load_view.visibility = View.VISIBLE
                     }
+
 
                     Log.v(TAG, "< loadingState#onChanged(t=$state)")
                 })
@@ -68,7 +73,7 @@ internal class LoadingGamesFragment : Fragment(), View.OnClickListener {
             R.id.try_again_button -> {
                 failed_to_load_view.visibility = View.GONE
                 loading_message_view.visibility = View.VISIBLE
-                viewModel.loadNintendoGames()
+                viewModel.loadGames()
             }
 
             else -> throw IllegalArgumentException("unexpected clicked view: $v")

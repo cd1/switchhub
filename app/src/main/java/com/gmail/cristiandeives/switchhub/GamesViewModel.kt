@@ -2,10 +2,12 @@ package com.gmail.cristiandeives.switchhub
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
+import android.arch.lifecycle.MediatorLiveData
 import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import android.support.annotation.MainThread
 import android.util.Log
+import com.gmail.cristiandeives.switchhub.persistence.Game
 import com.gmail.cristiandeives.switchhub.persistence.Repository
 import java.util.Collections
 import java.util.concurrent.Executors
@@ -14,12 +16,20 @@ import java.util.concurrent.Executors
 internal class GamesViewModel(app: Application) : AndroidViewModel(app) {
     private val sharedPrefs = app.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
     private val repo = Repository.getInstance(app)
+    private val unsortedGames = repo.getAllGames()
     private val executor = Executors.newCachedThreadPool()
 
-    val localGames = repo.getAllLocalGames()
-    val nintendoGames = repo.nintendoGames
+    val games = MediatorLiveData<List<Game>>().apply {
+        addSource(unsortedGames) { ugs ->
+            Log.v(TAG, "> unsortedGames#onChanged(t[]=${ugs?.size})")
+
+            sortGames()
+
+            Log.v(TAG, "< unsortedGames#onChanged(t[]=${ugs?.size})")
+        }
+    }
     val loadingState = MutableLiveData<LoadingState>().apply {
-        value = if (nintendoGames.value == null) LoadingState.NOT_LOADED else LoadingState.LOADED
+        value = if (unsortedGames.value == null) LoadingState.NOT_LOADED else LoadingState.LOADED
     }
     var sortCriteria: SortCriteria
         get() = sharedPrefs.getInt(PREF_KEY_SORT, -1).let { sortPrefValue ->
@@ -35,15 +45,16 @@ internal class GamesViewModel(app: Application) : AndroidViewModel(app) {
             sharedPrefs.edit()
                 .putInt(PREF_KEY_SORT, value.ordinal)
                 .apply()
+
+            loadingState.value = LoadingState.LOADING
             sortGames()
         }
 
-    fun loadNintendoGames() {
+    fun loadGames() {
         if (loadingState.value != LoadingState.LOADING) {
             loadingState.value = LoadingState.LOADING
 
-            repo.refreshNintendoGames(onSuccess = {
-                sortGames()
+            repo.refreshGames(onSuccess = {
                 loadingState.value = LoadingState.LOADED
             }, onError = {
                 loadingState.value = LoadingState.FAILED
@@ -54,10 +65,14 @@ internal class GamesViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun sortGames() {
-        loadingState.value = LoadingState.LOADING
+        // no games -> nothing to sort
+        if (unsortedGames.value?.isEmpty() != false) {
+            games.value = unsortedGames.value
+            return
+        }
 
         executor.execute {
-            val comparator: Comparator<NintendoGame> = when (sortCriteria.sortBy) {
+            val comparator: Comparator<Game> = when (sortCriteria.sortBy) {
                 SortCriteria.By.FEATURED -> compareBy { it.featuredIndex }
                 SortCriteria.By.TITLE -> compareBy { it.title }
                 SortCriteria.By.PRICE -> compareBy { it.price }
@@ -69,8 +84,8 @@ internal class GamesViewModel(app: Application) : AndroidViewModel(app) {
                 SortCriteria.Direction.DESCENDING -> Collections.reverseOrder(comparator)
             }
 
-            val sortedGames = nintendoGames.value?.sortedWith(comparatorWithDirection)
-            nintendoGames.postValue(sortedGames)
+            val sortedGames = unsortedGames.value?.sortedWith(comparatorWithDirection)
+            games.postValue(sortedGames)
             loadingState.postValue(LoadingState.LOADED)
         }
     }

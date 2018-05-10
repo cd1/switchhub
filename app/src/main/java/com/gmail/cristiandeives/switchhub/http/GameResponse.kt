@@ -2,7 +2,7 @@ package com.gmail.cristiandeives.switchhub.http
 
 import android.net.Uri
 import android.util.Log
-import com.gmail.cristiandeives.switchhub.NintendoGame
+import com.gmail.cristiandeives.switchhub.persistence.Game
 import java.text.DateFormat
 import java.text.ParseException
 import java.util.Locale
@@ -11,24 +11,24 @@ internal data class GameResponse(val filter: ResponseFilter, val games: Response
 
 internal data class ResponseGames(val offset: Int, val limit: Int, private val game: List<GamesGame>?) {
     fun toGameData() = game?.mapIndexed { index, g ->
-        NintendoGame(
+        Game(
             id = g.id,
-            nsuid = g.nsuid,
+            nsuid = g.nsuid.orEmpty(),
             featuredIndex = offset + index,
-            title = g.title,
+            title = g.title.orEmpty(),
             releaseDate = try {
                 US_DATE_FORMAT.parse(g.release_date)
             } catch (e: ParseException) {
                 Log.w(TAG, "invalid release date format", e)
                 null
             },
-            releaseDateDisplay = g.release_date_display,
+            releaseDateDisplay = g.release_date_display.orEmpty(),
             price = g.eshop_price?.toBigDecimal(),
-            frontBoxArtUrl = Uri.parse(g.front_box_art),
-            videoLink = g.video_link?.let { Uri.parse("https://secure-cf-c.ooyala.com/$it/DOcJ-FxaFrRg4gtDEwOmk2OjBrO6qGv_") },
-            numberOfPlayers = g.number_of_players,
+            frontBoxArtUrl = g.front_box_art?.let { Uri.parse(it) } ?: Uri.EMPTY,
+            videoLink = g.video_link?.let { Uri.parse("https://secure-cf-c.ooyala.com/$it/DOcJ-FxaFrRg4gtDEwOmk2OjBrO6qGv_") } ?: Uri.EMPTY,
+            numberOfPlayers = g.number_of_players.orEmpty(),
             categories = g.categories.category,
-            buyItNow = g.buyitnow.toBoolean()
+            buyItNow = g.buyitnow?.toBoolean() ?: false
         )
     } ?: emptyList()
 
@@ -84,19 +84,19 @@ internal data class FilterSystems(val system: List<NameTotal>, val total: Int)
 internal data class FilterVcs(val vcs: List<NameTotal>, val total: Int)
 
 internal data class GamesGame(
-    val buyitnow: String,
-    val slug: String,
-    val release_date: String,
-    val digitaldownload: String,
-    val free_to_start: String,
-    val title: String,
-    val system: String,
     val id: String,
-    val number_of_players: String,
-    val release_date_display: String,
-    val front_box_art: String,
-    val game_code: String,
-    val buyonline: String,
+    val buyitnow: String?,
+    val slug: String?,
+    val release_date: String?,
+    val digitaldownload: String?,
+    val free_to_start: String?,
+    val title: String?,
+    val system: String?,
+    val number_of_players: String?,
+    val release_date_display: String?,
+    val front_box_art: String?,
+    val game_code: String?,
+    val buyonline: String?,
     val video_link: String?,
     val eshop_price: Double?,
     val ca_price: String?,

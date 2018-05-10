@@ -60,62 +60,48 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         Log.v(TAG, "> onActivityCreated(savedInstanceState=$savedInstanceState)")
         super.onActivityCreated(savedInstanceState)
 
-        viewModel = ViewModelProviders.of(this)[GamesViewModel::class.java].apply {
-            var initialLoadingState: LoadingState? = loadingState.value
+        activity?.let { parentActivity ->
+            viewModel = ViewModelProviders.of(parentActivity)[GamesViewModel::class.java].apply {
+                var initialLoadingState: LoadingState? = loadingState.value
 
-            loadingState.observe(this@GamesFragment, Observer { state ->
-                Log.v(TAG, "> loadingState#onChanged(t=$state)")
+                loadingState.observe(this@GamesFragment, Observer { state ->
+                    Log.v(TAG, "> loadingState#onChanged(t=$state)")
 
-                cachedState = state
+                    cachedState = state
 
-                if (state == LoadingState.FAILED) {
-                    if (initialLoadingState == LoadingState.FAILED) {
-                        // don't display the snack because the error didn't happen now
-                        return@Observer
+                    if (state == LoadingState.FAILED) {
+                        if (initialLoadingState == LoadingState.FAILED) {
+                            // don't display the snack because the error didn't happen now
+                            return@Observer
+                        }
+
+                        Snackbar.make(coordinator_layout, R.string.loading_games_failed_message, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.try_again, this@GamesFragment)
+                            .show()
                     }
 
-                    Snackbar.make(coordinator_layout, R.string.loading_games_failed_message, Snackbar.LENGTH_LONG)
-                        .setAction(R.string.try_again, this@GamesFragment)
-                        .show()
-                }
+                    swipe_refresh.isRefreshing = (state == LoadingState.LOADING)
+                    initialLoadingState = null
 
-                swipe_refresh.isRefreshing = (state == LoadingState.LOADING)
-                initialLoadingState = null
+                    Log.v(TAG, "< loadingState#onChanged(t=$state)")
+                })
 
-                Log.v(TAG, "< loadingState#onChanged(t=$state)")
-            })
+                games.observe(this@GamesFragment, Observer { games ->
+                    Log.v(TAG, "> games#onChanged(t[]=${games?.size})")
 
-            nintendoGames.observe(this@GamesFragment, Observer { games ->
-                Log.v(TAG, "> nintendoGames#onChanged(t=$games)")
+                    games?.let { gs ->
+                        if (shouldScrollToTop) {
+                            gameLayoutManager.scrollToPosition(0)
+                            shouldScrollToTop = false
+                        }
 
-                games?.let { gs ->
-                    if (shouldScrollToTop) {
-                        gameLayoutManager.scrollToPosition(0)
-                        shouldScrollToTop = false
+                        gameAdapter.games = gs
                     }
-                    if (!gs.isEmpty()) {
-                        gameAdapter.nintendoGames = gs
-                        swipe_refresh.visibility = View.VISIBLE
-                        no_games_layout.visibility = View.GONE
-                    } else {
-                        swipe_refresh.visibility = View.GONE
-                        no_games_layout.visibility = View.VISIBLE
-                    }
-                }
 
-                Log.v(TAG, "< nintendoGames#onChanged(t=$games)")
-            })
-
-            localGames.observe(this@GamesFragment, Observer { games ->
-                Log.v(TAG, "> localGames#onChanged(t=$games)")
-
-                games?.let { gs ->
-                    gameAdapter.localGames = gs
-                }
-
-                Log.v(TAG, "< localGames#onChanged(t=$games)")
-            })
-        }
+                    Log.v(TAG, "< games#onChanged(t[]=${games?.size})")
+                })
+            }
+        } ?: Log.w(TAG, "Fragment doesn't have a parent Activity; cannot get ViewModel")
 
         Log.v(TAG, "< onActivityCreated(savedInstanceState=$savedInstanceState)")
     }
@@ -150,7 +136,7 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
             R.id.sort_by_highest_price -> changeSortCriteria(SortCriteria.HIGHEST_PRICE)
             R.id.refresh -> {
                 Log.i(TAG, "user requested to refresh game data via menu")
-                viewModel.loadNintendoGames()
+                viewModel.loadGames()
                 shouldScrollToTop = true
             }
             else -> {
@@ -167,7 +153,7 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         Log.v(TAG, "> onRefresh()")
 
         Log.i(TAG, "user requested to refresh game data by swiping down from the top")
-        viewModel.loadNintendoGames()
+        viewModel.loadGames()
         shouldScrollToTop = true
 
         Log.v(TAG, "< onRefresh()")
@@ -176,7 +162,7 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
     override fun onClick(v: View) {
         Log.v(TAG, "> onClick(v=$v)")
 
-        viewModel.loadNintendoGames()
+        viewModel.loadGames()
 
         Log.v(TAG, "< onClick(v=$v)")
     }

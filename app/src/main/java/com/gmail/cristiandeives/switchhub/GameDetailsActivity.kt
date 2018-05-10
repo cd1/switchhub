@@ -5,6 +5,7 @@ import android.support.annotation.MainThread
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
+import com.gmail.cristiandeives.switchhub.persistence.Repository
 
 @MainThread
 class GameDetailsActivity : AppCompatActivity() {
@@ -14,17 +15,20 @@ class GameDetailsActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_game_details)
 
-        intent?.getParcelableExtra<NintendoGame>(GameDetailsFragment.EXTRA_GAME)?.let { game ->
-            supportActionBar?.title = game.title
+        intent?.getStringExtra(GameDetailsFragment.EXTRA_GAME_ID)?.let { gameId ->
+            val repo = Repository.getInstance(applicationContext)
+            repo.getGameTitle(gameId, onSuccess = { title ->
+                supportActionBar?.title = title
+            })
 
             if (supportFragmentManager.findFragmentByTag(FrontBoxArtFragment.FRAGMENT_TAG) == null) {
-                val fragment = GameDetailsFragment.newInstance(game)
+                val fragment = GameDetailsFragment.newInstance(gameId)
 
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, fragment, FrontBoxArtFragment.FRAGMENT_TAG)
                     .commit()
             }
-        } ?: Log.w(TAG, "could not find NintendoGame [key=${GameDetailsFragment.EXTRA_GAME}] inside Activity.intent")
+        } ?: Log.w(TAG, "could not find game ID [key=${GameDetailsFragment.EXTRA_GAME_ID}] inside Activity.intent")
 
         Log.v(TAG, "< onCreate(savedInstanceState=$savedInstanceState)")
     }

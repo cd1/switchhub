@@ -16,7 +16,6 @@
     <string name="try_again">Tentar novamente</string>
 
     <!-- GamesFragment -->
-    <string name="no_games_found">Nenhum jogo encontrado.</string>
     <string name="front_box_art_description">Arte de capa do jogo</string>
     <string name="price_unavailable">Preço não disponível</string>
     <string name="wishlist_button_description">Botão da lista de desejos</string>

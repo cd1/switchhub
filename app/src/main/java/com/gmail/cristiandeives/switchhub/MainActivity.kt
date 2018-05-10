@@ -17,23 +17,33 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         ViewModelProviders.of(this)[GamesViewModel::class.java].apply {
-            if (nintendoGames.value == null) {
+            // TODO: remove the "title" check when version 6 isn't relevant anymore
+            // this handles the DB merge from LocalGame + data from the Internet and it assumes that
+            // the data isn't valid and the app needs to refresh the game data from the Internet.
+            if (games.value?.isNotEmpty() == true && games.value?.all { it.title.isNotEmpty() } == true) {
+                Log.d(TAG, "existing game info found")
+                changeFragmentTo(GamesFragment::class.java)
+            } else {
                 Log.d(TAG, "no game info found")
                 changeFragmentTo(LoadingGamesFragment::class.java)
 
-                loadingState.observe(this@MainActivity, Observer { state ->
-                    Log.v(TAG, "> loadingState#onChanged(t=$state)")
+                // we need to observe this LiveData so GamesViewModel.unsortedGames can emit
+                // any value (which will then emit a value in GamesViewModel.loadingState...)
+                games.observe(this@MainActivity, Observer { gs ->
+                    Log.v(TAG, "games#onChanged(t[]=${gs?.size})")
+                })
 
-                    if (state == LoadingState.LOADED) {
-                        loadingState.removeObservers(this@MainActivity)
+                loadingState.observe(this@MainActivity, Observer { state ->
+                    Log.v(TAG, "> loadingState#onChanged(state=$state)")
+
+                    // TODO: remove the "title" check when version 6 isn't relevant anymore
+                    if (state == LoadingState.LOADED && games.value?.all { it.title.isNotEmpty() } == true) {
+                        games.removeObservers(this@MainActivity)
                         changeFragmentTo(GamesFragment::class.java)
                     }
 
-                    Log.v(TAG, "< loadingState#onChanged(t=$state)")
+                    Log.v(TAG, "< loadingState#onChanged(state=$state)")
                 })
-            } else {
-                Log.d(TAG, "previous game info found")
-                changeFragmentTo(GamesFragment::class.java)
             }
         }
 

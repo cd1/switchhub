@@ -17,7 +17,6 @@
     <string name="try_again">Try again</string>
 
     <!-- GamesFragment -->
-    <string name="no_games_found">No games found.</string>
     <string name="front_box_art_description">Game front box art</string>
     <string name="price_unavailable">Price unavailable</string>
     <string name="wishlist_button_description">Wish list button</string>

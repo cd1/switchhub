@@ -1,12 +1,10 @@
 package com.gmail.cristiandeives.switchhub.persistence
 
-import android.arch.lifecycle.MutableLiveData
 import android.arch.persistence.room.Room
 import android.content.Context
 import android.os.Handler
 import android.support.annotation.UiThread
 import android.util.Log
-import com.gmail.cristiandeives.switchhub.NintendoGame
 import com.gmail.cristiandeives.switchhub.http.GameCategoriesAdapter
 import com.gmail.cristiandeives.switchhub.http.NintendoEshopService
 import com.squareup.moshi.Moshi
@@ -17,6 +15,7 @@ import java.util.concurrent.Executors
 @UiThread
 internal class Repository private constructor(ctx: Context) {
     private val roomDb = Room.databaseBuilder(ctx.applicationContext, AppDatabase::class.java, DATABASE_NAME)
+        .addMigrations(AppDatabase.MigrationV1V2)
         .build()
     private val eshopRetrofitService = Retrofit.Builder()
         .baseUrl("https://www.nintendo.com")
@@ -26,18 +25,13 @@ internal class Repository private constructor(ctx: Context) {
     private val executor = Executors.newCachedThreadPool()
     private val uiHandler = Handler()
 
-    val nintendoGames = MutableLiveData<List<NintendoGame>>()
-
-    inline fun refreshNintendoGames(
-        crossinline onSuccess: () -> Unit = {},
-        crossinline onError: (e: Exception) -> Unit = {}
-    ) {
-        Log.d(TAG, "loading Nintendo games...")
+    inline fun refreshGames(crossinline onSuccess: () -> Unit = {}, crossinline onError: (e: Exception) -> Unit = {}) {
+        Log.d(TAG, "loading games...")
 
         executor.execute {
-            try {
-                val newGames = mutableListOf<NintendoGame>()
+            val newGames = mutableListOf<Game>()
 
+            try {
                 // I need this "pageLoop" label to break out of the .forEach below...
                 run pageLoop@ {
                     generateSequence(0) { it + 1 }.forEach { page ->
@@ -47,7 +41,8 @@ internal class Repository private constructor(ctx: Context) {
                             Log.d(TAG, "received successful response")
 
                             val responseGames = response.body()?.games?.toGameData() ?: emptyList()
-                            Log.d(TAG, "new Nintendo games: ${responseGames.size}")
+                            Log.d(TAG, "new games: ${responseGames.size}")
+
                             newGames += responseGames
 
                             if (responseGames.size < PAGE_SIZE) {
@@ -65,7 +60,8 @@ internal class Repository private constructor(ctx: Context) {
                     }
                 }
 
-                nintendoGames.postValue(newGames)
+                roomDb.gameDao().mergeGames(newGames)
+
                 uiHandler.post {
                     onSuccess()
                 }
@@ -78,28 +74,16 @@ internal class Repository private constructor(ctx: Context) {
         }
     }
 
-    inline fun saveLocalGame(localGame: LocalGame, crossinline onSuccess: () -> Unit = {}, crossinline onError: (e: Exception) -> Unit = {}) {
-        executor.execute {
-            try {
-                roomDb.localGameDao().save(localGame)
-                uiHandler.post {
-                    onSuccess()
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "failed to INSERT into the database", e)
-                uiHandler.post {
-                    onError(e)
-                }
-            }
-        }
-    }
+    fun getAllGames() = roomDb.gameDao().selectAll()
 
-    inline fun localGameExists(id: String, crossinline onSuccess: (Boolean) -> Unit = {}, crossinline onError: (e: Exception) -> Unit = {}) {
+    fun getGame(id: String) = roomDb.gameDao().select(id)
+
+    inline fun getGameTitle(id: String, crossinline onSuccess: (String) -> Unit = {}, crossinline onError: (e: Exception) -> Unit = {}) {
         executor.execute {
             try {
-                val exists = roomDb.localGameDao().exists(id)
+                val title = roomDb.gameDao().selectTitle(id)
                 uiHandler.post {
-                    onSuccess(exists)
+                    onSuccess(title)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "failed to SELECT the database", e)
@@ -110,14 +94,10 @@ internal class Repository private constructor(ctx: Context) {
         }
     }
 
-    fun getLocalGame(id: String) = roomDb.localGameDao().select(id)
-
-    fun getAllLocalGames() = roomDb.localGameDao().selectAll()
-
-    inline fun updateLocalGameUserList(id: String, userList: LocalGame.UserList, crossinline onSuccess: () -> Unit = {}, crossinline onError: (e: Exception) -> Unit = {}) {
+    inline fun updateGameUserList(id: String, userList: Game.UserList, crossinline onSuccess: () -> Unit = {}, crossinline onError: (e: Exception) -> Unit = {}) {
         executor.execute {
             try {
-                roomDb.localGameDao().updateUserList(id, userList)
+                roomDb.gameDao().updateUserList(id, userList)
                 uiHandler.post {
                     onSuccess()
                 }
