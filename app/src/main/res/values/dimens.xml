@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="loading_games_text_margin">8dp</dimen>
-    <dimen name="loading_games_failed_text_margin">16dp</dimen>
+    <dimen name="title_bottom_margin">8dp</dimen>
+    <dimen name="message_side_margin">16dp</dimen>
 
     <dimen name="game_list_padding">3dp</dimen>
     <dimen name="game_card_corner_radius">2dp</dimen>

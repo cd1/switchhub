@@ -9,6 +9,9 @@
     <string name="sort_by_highest_price">Por preço ($$$)</string>
     <string name="refresh">Atualizar</string>
 
+    <!-- MainActivity -->
+    <string name="games">Jogos</string>
+
     <!-- LoadingGamesFragment -->
     <string name="loading_games">Carregando jogos…</string>
     <string name="loading_games_failed_message">Houve um problema ao carregar os jogos.</string>
@@ -19,6 +22,7 @@
     <string name="front_box_art_description">Arte de capa do jogo</string>
     <string name="price_unavailable">Preço não disponível</string>
     <string name="wishlist_button_description">Botão da lista de desejos</string>
+    <string name="no_games_found">Nenhum jogo encontrado.</string>
 
     <!-- GameDetailsFragment -->
     <string name="no_game_title">Título não especificado</string>
@@ -28,11 +32,14 @@
     <string name="no_categories">Categorias não especificadas</string>
     <string name="choose_list">Escolha uma lista</string>
     <string name="wish_list">Lista de desejos</string>
-    <string name="my_games_list">Lista dos meus jogos</string>
-    <string name="hidden_games_list">Lista de jogos ocultos</string>
+    <string name="my_games_list">Meus jogos</string>
+    <string name="hidden_games_list">Jogos ocultos</string>
     <string name="no_list">Nenhuma lista</string>
     <string name="hidden_game_warning">Esse jogo está oculto. Você não vai conseguir acessá-lo a partir da tela principal.</string>
 
     <!-- FrontBoxArtFragment -->
     <string name="front_box_art_fullscreen_description">Arte de capa do jogo em tela cheia</string>
+
+    <!-- WishListFragment -->
+    <string name="wish_list_no_games_suggestion">Você será notificado dos jogos adicionados na Lista de desejos quando os preços deles baixarem ou quando eles ficarem disponíveis (no caso de jogos que ainda não foram lançados).</string>
 </resources>

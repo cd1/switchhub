@@ -38,6 +38,7 @@ internal class GameDetailsFragment : Fragment(), View.OnClickListener {
             setOnCreateContextMenuListener(this@GameDetailsFragment)
             setOnClickListener(this@GameDetailsFragment)
         }
+        // TODO: make the TextView drawables alpha at 54%
 
         Log.v(TAG, "< onViewCreated(view=$view, savedInstanceState=$savedInstanceState)")
     }

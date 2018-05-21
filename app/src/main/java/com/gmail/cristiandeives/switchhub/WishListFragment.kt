@@ -3,10 +3,7 @@ package com.gmail.cristiandeives.switchhub
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.annotation.MainThread
-import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
-import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.GridLayoutManager
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,20 +12,19 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.fragment_games.*
+import kotlinx.android.synthetic.main.fragment_wish_list.*
 
-@MainThread
-internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, View.OnClickListener {
-    private lateinit var viewModel: GamesViewModel
+// TODO: this class is very similar to GamesFragment...
+internal class WishListFragment : Fragment() {
     private lateinit var gameLayoutManager: GridLayoutManager
-    private val gameAdapter = GamesAdapter()
-    private var cachedState: LoadingState? = null
+    private lateinit var viewModel: GamesViewModel
+    private val gamesAdapter = WishListAdapter()
     private var shouldScrollToTop = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         Log.v(TAG, "> onCreateView(inflater=$inflater, container=$container, savedInstanceState=$savedInstanceState)")
 
-        val view = inflater.inflate(R.layout.fragment_games, container, false)
+        val view = inflater.inflate(R.layout.fragment_wish_list, container, false)
         setHasOptionsMenu(true)
 
         Log.v(TAG, "< onCreateView(inflater=$inflater, container=$container, savedInstanceState=$savedInstanceState): $view")
@@ -45,12 +41,7 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         games_view.apply {
             setHasFixedSize(true)
             layoutManager = gameLayoutManager
-            adapter = gameAdapter
-        }
-
-        swipe_refresh.apply {
-            setColorSchemeResources(R.color.joyconNeonRed, R.color.joyconNeonBlue)
-            setOnRefreshListener(this@GamesFragment)
+            adapter = gamesAdapter
         }
 
         Log.v(TAG, "< onViewCreated(view=$view, savedInstanceState=$savedInstanceState)")
@@ -62,55 +53,23 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
 
         activity?.let { parentActivity ->
             viewModel = ViewModelProviders.of(parentActivity)[GamesViewModel::class.java].apply {
-                var initialLoadingState: LoadingState? = loadingState.value
+                games.observe(this@WishListFragment, Observer { gs ->
+                    Log.v(TAG, "> games#onChanged(t[]=${gs?.size})")
 
-                loadingState.observe(this@GamesFragment, Observer { state ->
-                    Log.v(TAG, "> loadingState#onChanged(t=$state)")
+                    gs?.let { gamesAdapter.games = it }
 
-                    cachedState = state
-
-                    if (state == LoadingState.FAILED) {
-                        if (initialLoadingState == LoadingState.FAILED) {
-                            // don't display the snack because the error didn't happen now
-                            return@Observer
-                        }
-
-                        Snackbar.make(coordinator_layout, R.string.loading_games_failed_message, Snackbar.LENGTH_LONG)
-                            .setAction(R.string.try_again, this@GamesFragment)
-                            .show()
-                    }
-
-                    swipe_refresh.isRefreshing = (state == LoadingState.LOADING)
-                    initialLoadingState = null
-
-                    Log.v(TAG, "< loadingState#onChanged(t=$state)")
-                })
-
-                games.observe(this@GamesFragment, Observer { games ->
-                    Log.v(TAG, "> games#onChanged(t[]=${games?.size})")
-
-                    if (games?.isEmpty() == false) {
+                    if (gamesAdapter.games.isNotEmpty()) {
                         no_games_layout.visibility = View.GONE
-                        swipe_refresh.visibility = View.VISIBLE
-
-                        if (shouldScrollToTop) {
-                            gameLayoutManager.scrollToPosition(0)
-                            shouldScrollToTop = false
-                        }
-
-                        gameAdapter.games = games
-                    } else if (cachedState == LoadingState.LOADED) {
-                        // when cachedState == LOADED, we can be sure that the empty games are
-                        // because they have actually been loaded and they're empty (as opposed to
-                        // being the first observation of the LiveData, even without real data).
-                        swipe_refresh.visibility = View.GONE
+                        games_view.visibility = View.VISIBLE
+                    } else {
+                        games_view.visibility = View.GONE
                         no_games_layout.visibility = View.VISIBLE
                     }
 
-                    Log.v(TAG, "< games#onChanged(t[]=${games?.size})")
+                    Log.v(TAG, "< games#onChanged(t[]=${gs?.size})")
                 })
             }
-        } ?: Log.w(TAG, "Fragment doesn't have a parent Activity; cannot get ViewModel")
+        }
 
         Log.v(TAG, "< onActivityCreated(savedInstanceState=$savedInstanceState)")
     }
@@ -158,30 +117,12 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         return itemConsumed
     }
 
-    override fun onRefresh() {
-        Log.v(TAG, "> onRefresh()")
-
-        Log.i(TAG, "user requested to refresh game data by swiping down from the top")
-        viewModel.loadGames()
-        shouldScrollToTop = true
-
-        Log.v(TAG, "< onRefresh()")
-    }
-
-    override fun onClick(v: View) {
-        Log.v(TAG, "> onClick(v=$v)")
-
-        viewModel.loadGames()
-
-        Log.v(TAG, "< onClick(v=$v)")
-    }
-
     private fun changeSortCriteria(sortCriteria: SortCriteria) {
         viewModel.sortCriteria = sortCriteria
         shouldScrollToTop = true
     }
 
     companion object {
-        private val TAG = GamesFragment::class.java.simpleName
+        private val TAG = WishListFragment::class.java.simpleName
     }
 }

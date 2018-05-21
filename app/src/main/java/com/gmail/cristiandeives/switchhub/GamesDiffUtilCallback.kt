@@ -27,19 +27,19 @@ internal class GamesDiffUtilCallback(private val oldData: List<Game>, private va
         val changes = mutableListOf<String>()
 
         if (old.title != new.title) {
-            changes += GameAdapter.PAYLOAD_TITLE_CHANGED
+            changes += GamesAdapter.PAYLOAD_TITLE_CHANGED
         }
 
         if (old.price != new.price) {
-            changes += GameAdapter.PAYLOAD_PRICE_CHANGED
+            changes += GamesAdapter.PAYLOAD_PRICE_CHANGED
         }
 
         if (old.frontBoxArtUrl != new.frontBoxArtUrl) {
-            changes += GameAdapter.PAYLOAD_FRONTBOX_ART_CHANGED
+            changes += GamesAdapter.PAYLOAD_FRONTBOX_ART_CHANGED
         }
 
         if (old.userList != new.userList) {
-            changes += GameAdapter.PAYLOAD_USERLIST_CHANGED
+            changes += GamesAdapter.PAYLOAD_USERLIST_CHANGED
         }
 
         return changes

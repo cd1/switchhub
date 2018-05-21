@@ -10,6 +10,9 @@
     <string name="sort_by_highest_price">By price ($$$)</string>
     <string name="refresh">Refresh</string>
 
+    <!-- MainActivity -->
+    <string name="games">Games</string>
+
     <!-- LoadingGamesFragment -->
     <string name="loading_games">Loading games…</string>
     <string name="loading_games_failed_message">There was a problem loading the games.</string>
@@ -20,6 +23,7 @@
     <string name="front_box_art_description">Game front box art</string>
     <string name="price_unavailable">Price unavailable</string>
     <string name="wishlist_button_description">Wish list button</string>
+    <string name="no_games_found">No games found.</string>
 
     <!-- GameDetailsFragment -->
     <string name="no_game_title">Title unspecified</string>
@@ -29,11 +33,14 @@
     <string name="no_categories">Categories unspecified</string>
     <string name="choose_list">Choose a list</string>
     <string name="wish_list">Wish list</string>
-    <string name="my_games_list">My games list</string>
-    <string name="hidden_games_list">Hidden games list</string>
+    <string name="my_games_list">My games</string>
+    <string name="hidden_games_list">Hidden games</string>
     <string name="no_list">No list</string>
     <string name="hidden_game_warning">This game is hidden. You won\'t be able to access it from the main screen.</string>
 
     <!-- FrontBoxArtFragment -->
     <string name="front_box_art_fullscreen_description">Game front box art in fullscreen</string>
+
+    <!-- WishListFragment -->
+    <string name="wish_list_no_games_suggestion">You will be notified of the games added to the Wish list when their prices get lower or when they become available (for unreleased games).</string>
 </resources>

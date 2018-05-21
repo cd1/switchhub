@@ -15,22 +15,22 @@ import com.gmail.cristiandeives.switchhub.persistence.Repository
 import com.squareup.picasso.Picasso
 
 @MainThread
-internal class GameAdapter : RecyclerView.Adapter<GameViewHolder>(), View.OnClickListener {
+internal open class GamesAdapter : RecyclerView.Adapter<GameViewHolder>(), View.OnClickListener {
     private var recyclerView: RecyclerView? = null
 
     var games = emptyList<Game>()
         set(value) {
-            val nonHiddenGames = value.filterNot { it.userList == Game.UserList.HIDDEN }
-            if (nonHiddenGames === field) {
+            val filteredGames = value.filter(::shouldGameBeDisplayed)
+            if (filteredGames === field) {
                 return
             }
 
             // TODO: move this out of the main thread
             DiffUtil
-                .calculateDiff(GamesDiffUtilCallback(field, nonHiddenGames))
+                .calculateDiff(GamesDiffUtilCallback(field, filteredGames))
                 .dispatchUpdatesTo(this)
 
-            field = nonHiddenGames
+            field = filteredGames
         }
 
     override fun onAttachedToRecyclerView(attachedRecyclerView: RecyclerView) {
@@ -52,7 +52,7 @@ internal class GameAdapter : RecyclerView.Adapter<GameViewHolder>(), View.OnClic
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val view = inflater.inflate(R.layout.game_viewholder, parent, false).apply {
-            setOnClickListener(this@GameAdapter)
+            setOnClickListener(this@GamesAdapter)
         }
 
         view.findViewById<ImageButton>(R.id.wishlist_button).setOnClickListener(this)
@@ -106,6 +106,8 @@ internal class GameAdapter : RecyclerView.Adapter<GameViewHolder>(), View.OnClic
         Log.v(TAG, "< onClick(view=$view)")
     }
 
+    open fun shouldGameBeDisplayed(game: Game) = game.userList != Game.UserList.HIDDEN
+
     private fun toggleWishList(view: View) {
         recyclerView?.let { rv ->
             val context = rv.context
@@ -144,7 +146,7 @@ internal class GameAdapter : RecyclerView.Adapter<GameViewHolder>(), View.OnClic
     }
 
     companion object {
-        private val TAG = GameAdapter::class.java.simpleName
+        private val TAG = GamesAdapter::class.java.simpleName
 
         const val PAYLOAD_TITLE_CHANGED = "title"
         const val PAYLOAD_PRICE_CHANGED = "price"
