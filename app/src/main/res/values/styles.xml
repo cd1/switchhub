@@ -9,4 +9,9 @@
         <item name="colorAccent">@color/joyconNeonBlue</item>
     </style>
 
+    <!-- Default splashscreen theme for API < 26. -->
+    <style name="AppTheme.Splashscreen">
+        <item name="android:windowBackground">@drawable/splashscreen</item>
+    </style>
+
 </resources>

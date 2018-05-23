@@ -12,7 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".MainActivity" android:launchMode="singleTop">
+        <activity android:name=".MainActivity"
+                android:launchMode="singleTop"
+                android:theme="@style/AppTheme.Splashscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

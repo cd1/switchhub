@@ -2,6 +2,7 @@ package com.gmail.cristiandeives.switchhub
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.os.Build
 import android.os.Bundle
 import android.support.annotation.MainThread
 import android.support.design.widget.BottomNavigationView
@@ -17,6 +18,11 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.v(TAG, "> onCreate(savedInstanceState=$savedInstanceState)")
         super.onCreate(savedInstanceState)
+
+        // restore the default theme (i.e. non-splashscreen) after Activity is loaded
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            setTheme(R.style.AppTheme)
+        }
 
         setContentView(R.layout.activity_main)
 
