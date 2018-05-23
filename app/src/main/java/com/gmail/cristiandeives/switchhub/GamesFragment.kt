@@ -64,28 +64,6 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
             viewModel = ViewModelProviders.of(parentActivity)[GamesViewModel::class.java].apply {
                 var initialLoadingState: LoadingState? = loadingState.value
 
-                loadingState.observe(this@GamesFragment, Observer { state ->
-                    Log.v(TAG, "> loadingState#onChanged(t=$state)")
-
-                    cachedState = state
-
-                    if (state == LoadingState.FAILED) {
-                        if (initialLoadingState == LoadingState.FAILED) {
-                            // don't display the snack because the error didn't happen now
-                            return@Observer
-                        }
-
-                        Snackbar.make(coordinator_layout, R.string.loading_games_failed_message, Snackbar.LENGTH_LONG)
-                            .setAction(R.string.try_again, this@GamesFragment)
-                            .show()
-                    }
-
-                    swipe_refresh.isRefreshing = (state == LoadingState.LOADING)
-                    initialLoadingState = null
-
-                    Log.v(TAG, "< loadingState#onChanged(t=$state)")
-                })
-
                 games.observe(this@GamesFragment, Observer { games ->
                     Log.v(TAG, "> games#onChanged(t[]=${games?.size})")
 
@@ -108,6 +86,28 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
                     }
 
                     Log.v(TAG, "< games#onChanged(t[]=${games?.size})")
+                })
+
+                loadingState.observe(this@GamesFragment, Observer { state ->
+                    Log.v(TAG, "> loadingState#onChanged(t=$state)")
+
+                    cachedState = state
+
+                    if (state == LoadingState.FAILED) {
+                        if (initialLoadingState == LoadingState.FAILED) {
+                            // don't display the snack because the error didn't happen now
+                            return@Observer
+                        }
+
+                        Snackbar.make(coordinator_layout, R.string.loading_games_failed_message, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.try_again, this@GamesFragment)
+                            .show()
+                    }
+
+                    swipe_refresh.isRefreshing = (state == LoadingState.LOADING)
+                    initialLoadingState = null
+
+                    Log.v(TAG, "< loadingState#onChanged(t=$state)")
                 })
             }
         } ?: Log.w(TAG, "Fragment doesn't have a parent Activity; cannot get ViewModel")
