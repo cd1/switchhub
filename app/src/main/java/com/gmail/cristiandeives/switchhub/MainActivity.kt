@@ -44,7 +44,15 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
                     if (state == LoadingState.LOADED && games.value?.all { it.title.isNotEmpty() } == true) {
                         games.removeObservers(this@MainActivity)
                         loadingState.removeObservers(this@MainActivity)
-                        changeFragmentTo(GamesFragment::class.java)
+
+                        val lastFragTag = savedInstanceState?.getString(EXTRA_LAST_FRAGMENT)
+                        Log.d(TAG, "last used fragment: $lastFragTag")
+                        val lastFragClass = when (lastFragTag) {
+                            GamesFragment::class.java.simpleName -> GamesFragment::class.java
+                            WishListFragment::class.java.simpleName -> WishListFragment::class.java
+                            else -> GamesFragment::class.java
+                        }
+                        changeFragmentTo(lastFragClass)
                         bottom_navigation.visibility = View.VISIBLE
                     }
 
@@ -73,6 +81,15 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         return itemConsumed
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        Log.v(TAG, "> onSaveInstanceState(outState=$outState)")
+        super.onSaveInstanceState(outState)
+
+        outState.putString(EXTRA_LAST_FRAGMENT, supportFragmentManager.fragments.firstOrNull()?.tag)
+
+        Log.v(TAG, "< onSaveInstanceState(outState=$outState)")
+    }
+
     private fun <T> changeFragmentTo(fragClass: Class<out T>)
             where T : Fragment {
         Log.d(TAG, "changing fragment to $fragClass")
@@ -90,6 +107,8 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
     }
 
     companion object {
+        private const val EXTRA_LAST_FRAGMENT = "last_fragment"
+
         private val TAG = MainActivity::class.java.simpleName
     }
 }
