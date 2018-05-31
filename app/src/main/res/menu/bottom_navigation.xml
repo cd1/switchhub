@@ -5,7 +5,7 @@
         android:title="@string/games"
         android:icon="@drawable/ic_games"/>
     <item
-        android:id="@+id/wish_list_item"
-        android:title="@string/wish_list"
+        android:id="@+id/my_lists_item"
+        android:title="@string/my_lists"
         android:icon="@drawable/ic_list"/>
 </menu>

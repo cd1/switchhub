@@ -29,7 +29,6 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         Log.v(TAG, "> onCreateView(inflater=$inflater, container=$container, savedInstanceState=$savedInstanceState)")
 
         val view = inflater.inflate(R.layout.fragment_games, container, false)
-        setHasOptionsMenu(true)
 
         Log.v(TAG, "< onCreateView(inflater=$inflater, container=$container, savedInstanceState=$savedInstanceState): $view")
         return view
@@ -52,6 +51,8 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
             setColorSchemeResources(R.color.joyconNeonRed, R.color.joyconNeonBlue)
             setOnRefreshListener(this@GamesFragment)
         }
+
+        setHasOptionsMenu(true)
 
         Log.v(TAG, "< onViewCreated(view=$view, savedInstanceState=$savedInstanceState)")
     }
@@ -118,9 +119,9 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         Log.v(TAG, "> onCreateOptionsMenu(menu=$menu, inflater=$inflater)")
 
-        inflater.inflate(R.menu.games_fragment, menu)
+        inflater.inflate(R.menu.main, menu)
 
-        Log.v(TAG, "< onCreateOptionsMenu(menu=$menu, inflater=$inflater): $menu")
+        Log.v(TAG, "< onCreateOptionsMenu(menu=$menu, inflater=$inflater)")
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

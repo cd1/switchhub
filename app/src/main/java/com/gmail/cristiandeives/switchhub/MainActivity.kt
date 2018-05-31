@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
                         Log.d(TAG, "last used fragment: $lastFragTag")
                         val lastFragClass = when (lastFragTag) {
                             GamesFragment::class.java.simpleName -> GamesFragment::class.java
-                            WishListFragment::class.java.simpleName -> WishListFragment::class.java
+                            MyListsFragment::class.java.simpleName -> MyListsFragment::class.java
                             else -> GamesFragment::class.java
                         }
                         changeFragmentTo(lastFragClass)
@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
         val fragClass = when (item.itemId) {
             R.id.games_item -> GamesFragment::class.java
-            R.id.wish_list_item -> WishListFragment::class.java
+            R.id.my_lists_item -> MyListsFragment::class.java
             else -> throw IllegalArgumentException(item.toString())
         }
         changeFragmentTo(fragClass)

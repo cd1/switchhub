@@ -12,6 +12,7 @@
 
     <!-- MainActivity -->
     <string name="games">Games</string>
+    <string name="my_lists">My lists</string>
 
     <!-- LoadingGamesFragment -->
     <string name="loading_games">Loading games…</string>
