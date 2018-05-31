@@ -153,7 +153,7 @@ internal class GameDetailsFragment : Fragment(), View.OnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.fragment_container, FrontBoxArtFragment.newInstance(g.frontBoxArtUrl), FrontBoxArtFragment.FRAGMENT_TAG)
                 ?.addToBackStack(null)
-                ?.commit()
+                ?.commitAllowingStateLoss()
                     ?: Log.w(TAG, "unable to perform a Fragment transaction on the parent activity")
         } ?: Log.w(TAG, "unable to display front box art because there's no game data")
     }
