@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+            android:shortcutId="wish_list"
+            android:icon="@mipmap/ic_shortcut_list"
+            android:shortcutShortLabel="@string/wish_list">
+        <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="com.gmail.cristiandeives.switchhub"
+                android:targetClass="com.gmail.cristiandeives.switchhub.MainActivity">
+            <extra
+                    android:name="com.gmail.cristiandeives.switchhub.HOME_SCREEN"
+                    android:value="wish_list" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+            android:shortcutId="my_games"
+            android:icon="@mipmap/ic_shortcut_list"
+            android:shortcutShortLabel="@string/my_games_list">
+        <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="com.gmail.cristiandeives.switchhub"
+                android:targetClass="com.gmail.cristiandeives.switchhub.MainActivity">
+            <extra
+                    android:name="com.gmail.cristiandeives.switchhub.HOME_SCREEN"
+                    android:value="my_games" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+            android:shortcutId="hidden_games"
+            android:icon="@mipmap/ic_shortcut_list"
+            android:shortcutShortLabel="@string/hidden_games_list">
+        <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="com.gmail.cristiandeives.switchhub"
+                android:targetClass="com.gmail.cristiandeives.switchhub.MainActivity">
+            <extra
+                    android:name="com.gmail.cristiandeives.switchhub.HOME_SCREEN"
+                    android:value="hidden_games" />
+        </intent>
+    </shortcut>
+
+</shortcuts>

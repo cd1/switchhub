@@ -51,14 +51,28 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
                         games.removeObservers(this@MainActivity)
                         loadingState.removeObservers(this@MainActivity)
 
-                        val lastFragTag = savedInstanceState?.getString(EXTRA_LAST_FRAGMENT)
-                        Log.d(TAG, "last used fragment: $lastFragTag")
-                        val lastFragClass = when (lastFragTag) {
-                            GamesFragment::class.java.simpleName -> GamesFragment::class.java
-                            MyListsFragment::class.java.simpleName -> MyListsFragment::class.java
-                            else -> GamesFragment::class.java
+                        val homeScreenExtra = intent.getStringExtra(MyListsFragment.EXTRA_HOME_SCREEN)
+                        Log.d(TAG, "${MyListsFragment.EXTRA_HOME_SCREEN} = $homeScreenExtra")
+                        var args: Bundle? = null
+                        val fragClass = when (homeScreenExtra) {
+                            MyListsFragment.EXTRA_VALUE_HOME_SCREEN_WISH_LIST, MyListsFragment.EXTRA_VALUE_HOME_SCREEN_MY_GAMES, MyListsFragment.EXTRA_VALUE_HOME_SCREEN_HIDDEN_GAMES -> {
+                                args = Bundle().apply { putString(MyListsFragment.EXTRA_HOME_SCREEN, homeScreenExtra) }
+                                bottom_navigation.selectedItemId = R.id.my_lists_item
+                                MyListsFragment::class.java
+                            }
+
+                            else -> {
+                                val lastFragTag = savedInstanceState?.getString(EXTRA_LAST_FRAGMENT)
+                                Log.d(TAG, "last used fragment: $lastFragTag")
+                                when (lastFragTag) {
+                                    GamesFragment::class.java.simpleName -> GamesFragment::class.java
+                                    MyListsFragment::class.java.simpleName -> MyListsFragment::class.java
+                                    else -> GamesFragment::class.java
+                                }
+                            }
                         }
-                        changeFragmentTo(lastFragClass)
+
+                        changeFragmentTo(fragClass, args)
                         bottom_navigation.visibility = View.VISIBLE
                     }
 
@@ -96,13 +110,14 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         Log.v(TAG, "< onSaveInstanceState(outState=$outState)")
     }
 
-    private fun <T> changeFragmentTo(fragClass: Class<out T>)
+    private fun <T> changeFragmentTo(fragClass: Class<out T>, args: Bundle? = null)
             where T : Fragment {
         Log.d(TAG, "changing fragment to $fragClass")
 
         val fragTag = fragClass.simpleName
         if (supportFragmentManager.findFragmentByTag(fragTag) == null) {
             val frag = fragClass.newInstance()
+            args?.let { frag.arguments = it }
 
             supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, frag, fragTag)
@@ -114,7 +129,6 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
     companion object {
         private const val EXTRA_LAST_FRAGMENT = "last_fragment"
-
         private val TAG = MainActivity::class.java.simpleName
     }
 }

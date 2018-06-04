@@ -12,5 +12,6 @@
 
     <color name="joyconRed">#E9112A</color>
 
+    <color name="materialGray">#F5F5F5</color>
     <color name="hidden_warning_bg">@android:color/darker_gray</color>
 </resources>
