@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
             supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, frag, fragTag)
-                    .commit()
+                    .commitAllowingStateLoss()
         } else {
             Log.d(TAG, "fragment already exists; don't create a new one")
         }
