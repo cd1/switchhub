@@ -84,6 +84,7 @@ internal abstract class ListFragment : Fragment() {
         Log.v(logTag, "> onCreateOptionsMenu(menu=$menu, inflater=$inflater)")
 
         inflater.inflate(R.menu.main, menu)
+        menu.findItem(R.id.refresh).isVisible = false
 
         Log.v(logTag, "< onCreateOptionsMenu(menu=$menu, inflater=$inflater)")
     }
