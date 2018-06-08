@@ -8,6 +8,8 @@
     <string name="sort_by_lowest_price">Por preço ($)</string>
     <string name="sort_by_highest_price">Por preço ($$$)</string>
     <string name="refresh">Atualizar</string>
+    <!-- deps: my_games_no_games_suggestion -->
+    <string name="settings">Configurações</string>
 
     <!-- MainActivity -->
     <string name="games">Jogos</string>
@@ -33,6 +35,7 @@
     <string name="no_categories">Categorias não especificadas</string>
     <string name="choose_list">Escolha uma lista</string>
     <string name="wish_list">Lista de desejos</string>
+    <!-- deps: display_my_games_summary -->
     <string name="my_games_list">Meus jogos</string>
     <string name="hidden_games_list">Jogos ocultos</string>
     <string name="no_list">Nenhuma lista</string>
@@ -49,4 +52,9 @@
 
     <!-- HiddenGamesFragment -->
     <string name="hidden_games_no_games_suggestion">Os jogos adicionados a esta lista não serão mostrados na listagem principal de jogos.</string>
+
+    <!-- SettingsFragment -->
+    <!-- deps: my_games_no_games_suggestion -->
+    <string name="display_my_games_title">Mostrar jogos que eu já tenho</string>
+    <string name="display_my_games_summary">Jogos adicionados à lista \"Meus jogos\" não serão ocultados ao mostrar todos os jogos</string>
 </resources>

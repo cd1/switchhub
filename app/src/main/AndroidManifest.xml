@@ -26,6 +26,11 @@
 
         <activity android:name=".GameDetailsActivity" android:parentActivityName=".MainActivity" />
 
+        <activity
+            android:name=".SettingsActivity"
+            android:parentActivityName=".MainActivity"
+            android:label="@string/settings" />
+
     </application>
 
 </manifest>

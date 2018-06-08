@@ -2,6 +2,7 @@ package com.gmail.cristiandeives.switchhub
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.os.Bundle
 import android.support.annotation.MainThread
 import android.support.design.widget.Snackbar
@@ -116,6 +117,25 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
         Log.v(TAG, "< onActivityCreated(savedInstanceState=$savedInstanceState)")
     }
 
+    override fun onStart() {
+        Log.v(TAG, "> onStart()")
+        super.onStart()
+
+        // check if some games should be displayed/hidden due to other settings being changed
+        // (e.g. a shared preference) while the Fragment was out
+        viewModel.games.value?.let { viewModelGames ->
+            val oldCount = gameAdapter.games.size
+            gameAdapter.games = viewModelGames
+            val newCount = gameAdapter.games.size
+
+            if (oldCount != newCount) {
+                gameLayoutManager.scrollToPosition(0)
+            }
+        }
+
+        Log.v(TAG, "< onStart()")
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         Log.v(TAG, "> onCreateOptionsMenu(menu=$menu, inflater=$inflater)")
 
@@ -148,6 +168,10 @@ internal class GamesFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener,
                 Log.i(TAG, "user requested to refresh game data via menu")
                 viewModel.loadGames()
                 shouldScrollToTop = true
+            }
+            R.id.settings -> {
+                val intent = Intent(context, SettingsActivity::class.java)
+                startActivity(intent)
             }
             else -> {
                 throw IllegalArgumentException("unexpected clicked options item: $item")

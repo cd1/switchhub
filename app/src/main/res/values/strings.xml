@@ -9,6 +9,8 @@
     <string name="sort_by_lowest_price">By price ($)</string>
     <string name="sort_by_highest_price">By price ($$$)</string>
     <string name="refresh">Refresh</string>
+    <!-- deps: my_games_no_games_suggestion -->
+    <string name="settings">Settings</string>
 
     <!-- MainActivity -->
     <string name="games">Games</string>
@@ -34,6 +36,7 @@
     <string name="no_categories">Categories unspecified</string>
     <string name="choose_list">Choose a list</string>
     <string name="wish_list">Wish list</string>
+    <!-- deps: display_my_games_summary -->
     <string name="my_games_list">My games</string>
     <string name="hidden_games_list">Hidden games</string>
     <string name="no_list">No list</string>
@@ -50,4 +53,9 @@
 
     <!-- HiddenGamesFragment -->
     <string name="hidden_games_no_games_suggestion">The games added to this list won\'t be shown on the main games listing.</string>
+
+    <!-- SettingsFragment -->
+    <!-- deps: my_games_no_games_suggestion -->
+    <string name="display_my_games_title">Show games I already own</string>
+    <string name="display_my_games_summary">Games added to the list \"My games\" won\'t be hidden when displaying all games</string>
 </resources>

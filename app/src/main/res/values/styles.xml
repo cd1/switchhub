@@ -6,6 +6,8 @@
         <item name="colorPrimary">@color/joyconNeonRed</item>
         <item name="colorPrimaryDark">@color/nintendoSwitchRed</item>
         <item name="colorAccent">@color/joyconNeonBlue</item>
+
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
     </style>
 
     <!-- Default splashscreen theme for API < 26. -->

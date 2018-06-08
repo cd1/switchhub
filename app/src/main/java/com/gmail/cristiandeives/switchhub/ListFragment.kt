@@ -2,6 +2,7 @@ package com.gmail.cristiandeives.switchhub
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
@@ -113,6 +114,10 @@ internal abstract class ListFragment : Fragment() {
                 Log.i(logTag, "user requested to refresh game data via menu")
                 viewModel.loadGames()
                 shouldScrollToTop = true
+            }
+            R.id.settings -> {
+                val intent = Intent(context, SettingsActivity::class.java)
+                startActivity(intent)
             }
             else -> {
                 throw IllegalArgumentException("unexpected clicked options item: $item")

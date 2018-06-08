@@ -3,6 +3,7 @@ package com.gmail.cristiandeives.switchhub
 import android.content.Intent
 import android.support.annotation.MainThread
 import android.support.v4.content.ContextCompat
+import android.support.v7.preference.PreferenceManager
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -103,7 +104,22 @@ internal open class GamesAdapter : RecyclerView.Adapter<GameViewHolder>(), View.
         Log.v(TAG, "< onClick(view=$view)")
     }
 
-    open fun shouldGameBeDisplayed(game: Game) = game.userList != Game.UserList.HIDDEN
+    open fun shouldGameBeDisplayed(game: Game): Boolean {
+        val isGameHidden = (game.userList == Game.UserList.HIDDEN)
+
+        recyclerView?.context?.let { ctx ->
+            val prefs = PreferenceManager.getDefaultSharedPreferences(ctx)
+            val shouldDisplayMyGames = prefs.getBoolean(SettingsFragment.PREF_KEY_DISPLAY_MY_GAMES, true)
+
+            if (!shouldDisplayMyGames) {
+                val isGameMine = game.userList == Game.UserList.OWNED
+
+                return !isGameHidden && !isGameMine
+            }
+        } ?: Log.w(TAG, "unable to check shared preference ${SettingsFragment.PREF_KEY_DISPLAY_MY_GAMES} because attached RecyclerView's context is null")
+
+        return !isGameHidden
+    }
 
     private fun toggleWishList(view: View) {
         recyclerView?.let { rv ->
