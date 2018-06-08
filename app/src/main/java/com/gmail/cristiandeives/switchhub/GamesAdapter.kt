@@ -20,17 +20,14 @@ internal open class GamesAdapter : RecyclerView.Adapter<GameViewHolder>(), View.
 
     var games = emptyList<Game>()
         set(value) {
-            val filteredGames = value.filter(::shouldGameBeDisplayed)
-            if (filteredGames === field) {
-                return
-            }
+            val gamesToBeDisplayed = value.filter(::shouldGameBeDisplayed)
 
             // TODO: move this out of the main thread
             DiffUtil
-                .calculateDiff(GamesDiffUtilCallback(field, filteredGames))
+                .calculateDiff(GamesDiffUtilCallback(field, gamesToBeDisplayed))
                 .dispatchUpdatesTo(this)
 
-            field = filteredGames
+            field = gamesToBeDisplayed
         }
 
     override fun onAttachedToRecyclerView(attachedRecyclerView: RecyclerView) {
