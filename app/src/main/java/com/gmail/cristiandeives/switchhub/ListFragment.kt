@@ -46,6 +46,8 @@ internal abstract class ListFragment : Fragment() {
             adapter = gamesAdapter
         }
 
+        no_games_suggestion.text = noGamesSuggestion()
+
         setHasOptionsMenu(true)
 
         Log.v(logTag, "< onViewCreated(view=$view, savedInstanceState=$savedInstanceState)")
@@ -120,6 +122,8 @@ internal abstract class ListFragment : Fragment() {
         Log.v(logTag, "< onOptionsItemSelected(item=$item): $itemConsumed")
         return itemConsumed
     }
+
+    open fun noGamesSuggestion() = ""
 
     private fun changeSortCriteria(sortCriteria: SortCriteria) {
         viewModel.sortCriteria = sortCriteria

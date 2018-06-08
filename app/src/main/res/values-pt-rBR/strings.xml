@@ -42,5 +42,11 @@
     <string name="front_box_art_fullscreen_description">Arte de capa do jogo em tela cheia</string>
 
     <!-- WishListFragment -->
-    <string name="wish_list_no_games_suggestion">Você será notificado dos jogos adicionados na Lista de desejos quando os preços deles baixarem ou quando eles ficarem disponíveis (no caso de jogos que ainda não foram lançados).</string>
+    <string name="wish_list_no_games_suggestion">Você será notificado dos jogos adicionados a esta lista quando os preços deles baixarem ou quando eles ficarem disponíveis (no caso de jogos que ainda não foram lançados).</string>
+
+    <!-- MyGamesFragment -->
+    <string name="my_games_no_games_suggestion">Nesta lista, você poderá ver mais facilmente os jogos que você já tem. Além disso, você também pode ocultar esses mesmos jogos da listagem principal desmarcando a opção no menu \"Configurações\" > \"Mostrar jogos que eu já tenho\".</string>
+
+    <!-- HiddenGamesFragment -->
+    <string name="hidden_games_no_games_suggestion">Os jogos adicionados a esta lista não serão mostrados na listagem principal de jogos.</string>
 </resources>

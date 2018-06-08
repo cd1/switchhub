@@ -39,7 +39,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/message_side_margin"
             android:layout_marginEnd="@dimen/message_side_margin"
-            android:text="@string/wish_list_no_games_suggestion"
             app:layout_constraintTop_toBottomOf="@id/no_games_message"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"

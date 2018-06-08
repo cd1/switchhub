@@ -43,5 +43,11 @@
     <string name="front_box_art_fullscreen_description">Game front box art in fullscreen</string>
 
     <!-- WishListFragment -->
-    <string name="wish_list_no_games_suggestion">You will be notified of the games added to the Wish list when their prices get lower or when they become available (for unreleased games).</string>
+    <string name="wish_list_no_games_suggestion">You will be notified of the games added to this list when their prices get lower or when they become available (for unreleased games).</string>
+
+    <!-- MyGamesFragment -->
+    <string name="my_games_no_games_suggestion">On this list, you\'ll be able to see the games you already own. You can also hide these same games from the main games listing by unchecking the option in the menu \"Settings\" > \"Show games I already own\".</string>
+
+    <!-- HiddenGamesFragment -->
+    <string name="hidden_games_no_games_suggestion">The games added to this list won\'t be shown on the main games listing.</string>
 </resources>
